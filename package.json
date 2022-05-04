@@ -1,0 +1,43 @@
+{
+  "name": "tanks_game_on_pixi",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Chivapchichi2/tanks_game_on_pixi.git",
+  "author": "Ivchenko Pavlo <pavlo.ivchenko@isoftbet.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack serve --open --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+  },
+  "homepage": "https://chivapchichi2.github.io//memory_game_on_canvas",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^10.2.4",
+    "css-loader": "^6.6.0",
+    "eslint-webpack-plugin": "^3.1.1",
+    "fork-ts-checker-webpack-plugin": "^7.2.1",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.5.3",
+    "node-sass": "^7.0.1",
+    "sass-loader": "^12.6.0",
+    "style-loader": "^3.3.1",
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.5.5",
+    "webpack": "^5.69.1",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.4"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.178",
+    "eslint": "^8.9.0",
+    "gh-pages": "^3.2.3",
+    "gsap": "^3.9.1",
+    "lodash": "^4.17.21",
+    "prettier": "^2.5.1",
+    "pixi.js": "^6.1.3"
+  }
+}
