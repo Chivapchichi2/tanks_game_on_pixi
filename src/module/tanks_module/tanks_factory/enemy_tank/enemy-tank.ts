@@ -15,9 +15,8 @@ import { BaseTank } from '../base_tank/base-tank';
 import { TanksNames } from '../../misc/tanks-names';
 
 export class EnemyTank extends BaseTank {
-	constructor() {
-		super();
-		this._name = TanksNames.TANKS_NAMES[1];
+	constructor(name: string) {
+		super(name);
 		this.texturePath = TanksNames.ENEMY_TANK_TEXTURE[_.random(2)];
 		this.texture = PIXI.Texture.from(this.texturePath);
 	}

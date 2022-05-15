@@ -16,10 +16,10 @@ import { BaseTank } from './base_tank/base-tank';
 
 export class TanksFactory {
 	getTank(name: string): BaseTank {
-		if (name === TanksNames.TANKS_NAMES[0]) {
-			return new PlayerTank();
-		} else if (name === TanksNames.TANKS_NAMES[0]) {
-			return new EnemyTank();
+		if (name === TanksNames.NAMES[0]) {
+			return new PlayerTank(TanksNames.NAMES[0]);
+		} else if (name === TanksNames.NAMES[1]) {
+			return new EnemyTank(TanksNames.NAMES[1]);
 		} else return null;
 	}
 }

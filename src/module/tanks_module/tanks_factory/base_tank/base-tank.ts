@@ -13,28 +13,39 @@ import * as _ from 'lodash';
 import * as PIXI from 'pixi.js';
 import { gsap } from 'gsap';
 import { TanksNames } from '../../misc/tanks-names';
+import { GameProxy } from '../../../game_module/proxy/game-proxy';
+import { BaseBullet } from '../../../bullet_module/bullets_factory/base_bullet/base-bullet';
+import { BulletsFactory } from '../../../bullet_module/bullets_factory/bullets-factory';
 
 export class BaseTank {
+	protected gameProxy: GameProxy;
+	protected bullet: BaseBullet;
+	constructor(name: string) {
+		this._name = name;
+		this.gameProxy = new GameProxy();
+		this.bullet = new BulletsFactory(name) as BaseBullet;
+	}
+
 	protected _name: string;
 	protected _lives = 1;
 	protected _speed = 2;
 	protected texturePath: string;
-	protected textureBulletPath: string;
 	protected texture: PIXI.Texture;
-	protected textureBullet: PIXI.Texture;
 	protected sprite: PIXI.Sprite;
-	protected bullets: PIXI.Sprite[] = [];
 	protected container: PIXI.Container;
 
 	public set lives(lives: number) {
 		this._lives = lives;
 	}
+
 	public get lives(): number {
 		return this._lives;
 	}
+
 	public set speed(speed: number) {
 		this._speed = speed;
 	}
+
 	public get speed(): number {
 		return this._speed;
 	}
@@ -44,16 +55,19 @@ export class BaseTank {
 		this.sprite = new PIXI.Sprite(this.texture);
 		this.sprite.anchor.set(0.5);
 		this.sprite.position.copyFrom(position);
+		if (_.isNil(this.gameProxy)) {
+			this.gameProxy = new GameProxy();
+		}
+		this.gameProxy.tanks.push(this.sprite);
 		this.container.addChild(this.sprite);
 		this.sprite.interactive = true;
-		this.sprite.buttonMode = true;
-		if (this._name === TanksNames.TANKS_NAMES[0]) {
+		if (this._name === TanksNames.NAMES[0]) {
 			document.onkeydown = this.play.bind(this);
 		}
 	}
 
 	public play(e: KeyboardEvent): void {
-		if (this._name === TanksNames.TANKS_NAMES[0]) {
+		if (this._name === TanksNames.NAMES[0]) {
 			if (e.code === 'ArrowDown' || e.code === 'KeyS') {
 				this.moveDown();
 			}
@@ -69,43 +83,43 @@ export class BaseTank {
 			if (e.code === 'Space') {
 				const side = this.getSide(_.round(this.sprite.rotation));
 				const position = this.getBulletPosition(this.sprite.position, side);
-				this.shoot(position);
+				this.shot(position, side);
 			}
 		}
 	}
+
 	protected moveUp(): void {
 		gsap.to(this.sprite, { rotation: 0, duration: 0.2 });
-		if (this.sprite.y >= 72) {
+		if (this.sprite.y >= this.gameProxy.borders.up + this.sprite.getBounds().height / 2) {
 			this.sprite.y -= this.speed;
 		}
 	}
+
 	protected moveDown(): void {
 		gsap.to(this.sprite, { rotation: (180 * Math.PI) / 180, duration: 0.2 });
-		if (this.sprite.y <= 686) {
+		if (this.sprite.y <= this.gameProxy.borders.down - this.sprite.getBounds().height / 2) {
 			this.sprite.y += this.speed;
 		}
 	}
+
 	protected moveLeft(): void {
 		gsap.to(this.sprite, { rotation: (270 * Math.PI) / 180, duration: 0.2 });
-		if (this.sprite.x >= 72) {
+		if (this.sprite.x >= this.gameProxy.borders.left + this.sprite.getBounds().width / 2) {
 			this.sprite.x -= this.speed;
 		}
 	}
+
 	protected moveRight(): void {
 		gsap.to(this.sprite, { rotation: (90 * Math.PI) / 180, duration: 0.3 });
-		if (this.sprite.x <= 864) {
+		if (this.sprite.x <= this.gameProxy.borders.right - this.sprite.getBounds().width / 2) {
 			this.sprite.x += this.speed;
 		}
 	}
 
-	protected shoot(position: PIXI.Point): void {
-		const bullet = new PIXI.Sprite(this.textureBullet);
-		bullet.anchor.set(0.5);
-		bullet.position.copyFrom(position);
-		this.container.addChild(bullet);
-		this.bullets.push(bullet);
-		console.log(bullet.getBounds());
+	protected shot(position: PIXI.Point, side: string): void {
+		this.bullet.makeBullet(this.container, position, side);
 	}
+
 	protected getSide(side: number): string {
 		switch (side) {
 			case 0:

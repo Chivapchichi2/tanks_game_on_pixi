@@ -14,12 +14,9 @@ import { TanksNames } from '../../misc/tanks-names';
 import * as PIXI from 'pixi.js';
 
 export class PlayerTank extends BaseTank {
-	constructor() {
-		super();
-		this._name = TanksNames.TANKS_NAMES[0];
+	constructor(name: string) {
+		super(name);
 		this.texturePath = TanksNames.PLAYER_TANK_TEXTURE;
-		this.textureBulletPath = TanksNames.BULET_TEXTURE[0];
 		this.texture = PIXI.Texture.from(this.texturePath);
-		this.textureBullet = PIXI.Texture.from(this.textureBulletPath);
 	}
 }
