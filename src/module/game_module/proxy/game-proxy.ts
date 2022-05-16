@@ -8,15 +8,27 @@
  *
  * Created by Pavlo Ivchenko on 09.05.2022
  */
+import * as _ from 'lodash';
 import * as PIXI from 'pixi.js';
 import { Loader } from '../components/loader';
 import { Game } from '../game';
 import { GameMediator } from '../mediator/game-mediator';
+import { TanksFactory } from '../../tanks_module/tanks_factory/tanks-factory';
+import { Wall } from '../../map_module/components/wall/wall';
+import { MapUtils } from '../../map_module/utils/map-utils';
 
 export class GameProxy {
+	public bullets: PIXI.Sprite[] = [];
+	public tanks: PIXI.Sprite[] = [];
+	public map: number[][];
+	public lvl: {}[][] = [[]];
+	public bulletSpeed = 4;
+	public borders = { up: 54, down: 700, left: 54, right: 880 };
 	public loader: Loader;
 	public app: PIXI.Application;
 	public game: Game;
+	public tanksFactory: TanksFactory;
+	public wall: Wall;
 	protected mediator: GameMediator;
 	protected static instance: GameProxy;
 	protected static exists: boolean;
@@ -33,11 +45,18 @@ export class GameProxy {
 		);
 		GameProxy.instance = this;
 		GameProxy.exists = true;
+		this.tanksFactory = new TanksFactory();
+		this.map = _.clone(MapUtils.LEVEL_1);
 		return this;
 	}
 
-	public bullets: PIXI.Sprite[] = [];
-	public tanks: PIXI.Sprite[] = [];
-	public bulletSpeed = 4;
-	public borders = { up: 54, down: 700, left: 54, right: 880 };
+	public makeLvl(): void {
+		this.lvl = _.map(this.map, (line) =>
+			_.map(line, (tiles) => {
+				const tile = MapUtils.TILES[tiles];
+				if (tile) return new tile();
+				return null;
+			})
+		);
+	}
 }

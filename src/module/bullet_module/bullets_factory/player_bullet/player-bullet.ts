@@ -9,13 +9,10 @@
  * Created by Pavlo Ivchenko on 09.05.2022
  */
 import { BaseBullet } from '../base_bullet/base-bullet';
-import { TanksNames } from '../../../tanks_module/misc/tanks-names';
-import * as PIXI from 'pixi.js';
 
 export class PlayerBullet extends BaseBullet {
 	constructor(name: string) {
 		super(name);
-		this.textureBulletPath = TanksNames.BULLET_TEXTURE[0];
-		this.textureBullet = PIXI.Texture.from(this.textureBulletPath);
+		this.textureBullet = this.gameProxy.loader.loader.resources.bullet.texture;
 	}
 }

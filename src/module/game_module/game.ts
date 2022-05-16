@@ -39,17 +39,5 @@ export class Game {
 	public start(): void {
 		this.game = new GameMediator(this);
 		this.game.play();
-		// for (let i = 0; i < 19; i++) {
-		// 	game.drawWall(36, 36 * i + 36);
-		// }
-		// for (let i = 0; i < 19; i++) {
-		// 	game.drawWall(36 * 25, 36 * i + 72);
-		// }
-		// for (let i = 0; i < 24; i++) {
-		// 	game.drawWall(36 * i + 72, 36);
-		// }
-		// for (let i = 0; i < 24; i++) {
-		// 	game.drawWall(36 * i + 36, 36 * 20);
-		// }
 	}
 }

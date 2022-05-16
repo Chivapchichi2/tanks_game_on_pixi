@@ -52,6 +52,9 @@ export class Loader {
 		this.loader.add('lose', './assets/sounds/lose.wav');
 		this.loader.add('shot', './assets/sounds/shot.wav');
 		this.loader.add('win', './assets/sounds/win.wav');
+		this.loader.add('start', './assets/sounds/start.mp3');
+		this.loader.add('move', './assets/sounds/move.mp3');
+		this.loader.add('eagle-destroy', './assets/sounds/eagle-destroy.mp3');
 		this.loader.add('enemy_blue', './assets/tanks/enemy_blue.png');
 		this.loader.add('enemy_red', './assets/tanks/enemy_red.png');
 		this.loader.add('enemy_white', './assets/tanks/enemy_white.png');

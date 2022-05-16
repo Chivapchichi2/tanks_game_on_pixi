@@ -12,7 +12,7 @@ import './index.css';
 import { sound } from '@pixi/sound';
 import { Game } from './module/game_module/game';
 
-sound.add('shot', './assets/sounds/shot.wav');
+console.log(sound);
 
 const game = new Game();
 game.start();

@@ -10,13 +10,10 @@
  */
 
 import { BaseTank } from '../base_tank/base-tank';
-import { TanksNames } from '../../misc/tanks-names';
-import * as PIXI from 'pixi.js';
 
 export class PlayerTank extends BaseTank {
 	constructor(name: string) {
 		super(name);
-		this.texturePath = TanksNames.PLAYER_TANK_TEXTURE;
-		this.texture = PIXI.Texture.from(this.texturePath);
+		this.texture = this.gameProxy.loader.loader.resources.tank.texture;
 	}
 }

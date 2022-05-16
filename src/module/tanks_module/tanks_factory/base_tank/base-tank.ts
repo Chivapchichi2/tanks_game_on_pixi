@@ -20,19 +20,18 @@ import { BulletsFactory } from '../../../bullet_module/bullets_factory/bullets-f
 export class BaseTank {
 	protected gameProxy: GameProxy;
 	protected bullet: BaseBullet;
+	protected _name: string;
+	protected _lives = 1;
+	protected _speed = 2;
+	protected texture: PIXI.Texture;
+	protected sprite: PIXI.Sprite;
+	protected container: PIXI.Container;
+
 	constructor(name: string) {
 		this._name = name;
 		this.gameProxy = new GameProxy();
 		this.bullet = new BulletsFactory(name) as BaseBullet;
 	}
-
-	protected _name: string;
-	protected _lives = 1;
-	protected _speed = 2;
-	protected texturePath: string;
-	protected texture: PIXI.Texture;
-	protected sprite: PIXI.Sprite;
-	protected container: PIXI.Container;
 
 	public set lives(lives: number) {
 		this._lives = lives;
@@ -70,15 +69,19 @@ export class BaseTank {
 		if (this._name === TanksNames.NAMES[0]) {
 			if (e.code === 'ArrowDown' || e.code === 'KeyS') {
 				this.moveDown();
+				this.gameProxy.loader.loader.resources.move.sound.play({ start: 0, end: 0.1 });
 			}
 			if (e.code === 'ArrowUp' || e.code === 'KeyW') {
 				this.moveUp();
+				this.gameProxy.loader.loader.resources.move.sound.play({ start: 0, end: 0.1 });
 			}
 			if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
 				this.moveLeft();
+				this.gameProxy.loader.loader.resources.move.sound.play({ start: 0, end: 0.1 });
 			}
 			if (e.code === 'ArrowRight' || e.code === 'KeyD') {
 				this.moveRight();
+				this.gameProxy.loader.loader.resources.move.sound.play({ start: 0, end: 0.1 });
 			}
 			if (e.code === 'Space') {
 				const side = this.getSide(_.round(this.sprite.rotation));
