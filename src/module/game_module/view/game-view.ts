@@ -13,6 +13,8 @@ import * as PIXI from 'pixi.js';
 import { GameProxy } from '../proxy/game-proxy';
 import { GameMediator } from '../mediator/game-mediator';
 import { TanksNames } from '../../tanks_module/misc/tanks-names';
+import { MapUtils } from '../../map_module/utils/map-utils';
+import { Global } from '../../global/misc/names';
 
 export class GameView {
 	protected gameProxy: GameProxy;
@@ -32,16 +34,16 @@ export class GameView {
 	protected move(sprite: PIXI.Sprite): void {
 		if (sprite) {
 			switch (sprite.name) {
-				case 'up':
+				case Global.UP:
 					this.moveUp(sprite);
 					break;
-				case 'right':
+				case Global.RIGHT:
 					this.moveRight(sprite);
 					break;
-				case 'down':
+				case Global.DOWN:
 					this.moveDown(sprite);
 					break;
-				case 'left':
+				case Global.LEFT:
 					this.moveLeft(sprite);
 					break;
 				default:
@@ -51,7 +53,7 @@ export class GameView {
 	}
 
 	protected moveUp(sprite: PIXI.Sprite): void {
-		if (sprite.y >= this.gameProxy.borders.up + sprite.getBounds().height / 2) {
+		if (!this.gameMediator.collisionDetect(sprite, Global.UP)) {
 			sprite.y -= this.gameProxy.bulletSpeed;
 		} else {
 			_.remove(this.gameProxy.bullets, sprite);
@@ -60,7 +62,7 @@ export class GameView {
 	}
 
 	protected moveDown(sprite: PIXI.Sprite): void {
-		if (sprite.y <= this.gameProxy.borders.down - sprite.getBounds().height / 2) {
+		if (!this.gameMediator.collisionDetect(sprite, Global.DOWN)) {
 			sprite.y += this.gameProxy.bulletSpeed;
 		} else {
 			_.remove(this.gameProxy.bullets, sprite);
@@ -69,7 +71,7 @@ export class GameView {
 	}
 
 	protected moveLeft(sprite: PIXI.Sprite): void {
-		if (sprite.x >= this.gameProxy.borders.left + sprite.getBounds().height / 2) {
+		if (!this.gameMediator.collisionDetect(sprite, Global.LEFT)) {
 			sprite.x -= this.gameProxy.bulletSpeed;
 		} else {
 			_.remove(this.gameProxy.bullets, sprite);
@@ -78,7 +80,7 @@ export class GameView {
 	}
 
 	protected moveRight(sprite: PIXI.Sprite): void {
-		if (sprite.x <= this.gameProxy.borders.right - sprite.getBounds().height / 2) {
+		if (!this.gameMediator.collisionDetect(sprite, Global.RIGHT)) {
 			sprite.x += this.gameProxy.bulletSpeed;
 		} else {
 			_.remove(this.gameProxy.bullets, sprite);
@@ -118,33 +120,9 @@ export class GameView {
 		this.drawMap();
 
 		this.gameProxy.tanksFactory
-			.getTank(TanksNames.NAMES[0])
-			.drawTank(this.app.stage, new PIXI.Point(13 * 36, 17 * 36));
+			.getTank(TanksNames.NAMES[0], this.gameMediator.collisionDetect.bind(this.gameMediator))
+			.drawTank(this.app.stage, MapUtils.PLAYER_START);
 	}
-
-	// protected drawWall(x: number, y: number): void {
-	// 	if (_.isNil(this.gameProxy.wall)) {
-	// 		this.gameProxy.wall = new Wall(this.gameProxy);
-	// 	}
-	// 	const wall = this.gameProxy.wall.getTexture();
-	// 	wall.position.set(x, y);
-	// 	this.app.stage.addChild(wall);
-	// }
-	//
-	// protected drawPerimeter(): void {
-	// 	for (let i = 0; i < 19; i++) {
-	// 		this.drawWall(36, 36 * i + 36);
-	// 	}
-	// 	for (let i = 0; i < 19; i++) {
-	// 		this.drawWall(36 * 25, 36 * i + 72);
-	// 	}
-	// 	for (let i = 0; i < 24; i++) {
-	// 		this.drawWall(36 * i + 72, 36);
-	// 	}
-	// 	for (let i = 0; i < 24; i++) {
-	// 		this.drawWall(36 * i + 36, 36 * 20);
-	// 	}
-	// }
 
 	protected drawMap(): void {
 		this.gameProxy.makeLvl();

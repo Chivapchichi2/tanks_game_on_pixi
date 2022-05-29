@@ -12,8 +12,8 @@
 import { BaseTank } from '../base_tank/base-tank';
 
 export class PlayerTank extends BaseTank {
-	constructor(name: string) {
-		super(name);
+	constructor(name: string, collisionDetect: Function) {
+		super(name, collisionDetect);
 		this.texture = this.gameProxy.loader.loader.resources.tank.texture;
 	}
 }

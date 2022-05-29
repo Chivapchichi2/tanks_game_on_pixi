@@ -14,8 +14,8 @@ import { BaseTank } from '../base_tank/base-tank';
 import { TanksNames } from '../../misc/tanks-names';
 
 export class EnemyTank extends BaseTank {
-	constructor(name: string) {
-		super(name);
+	constructor(name: string, collisionDetect: Function) {
+		super(name, collisionDetect);
 		const textureName = TanksNames.ENEMY_TANK_TEXTURE[_.random(2)];
 		this.texture = this.gameProxy.loader.loader.resources[textureName].texture;
 	}

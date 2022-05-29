@@ -16,21 +16,22 @@ import { TanksNames } from '../../misc/tanks-names';
 import { GameProxy } from '../../../game_module/proxy/game-proxy';
 import { BaseBullet } from '../../../bullet_module/bullets_factory/base_bullet/base-bullet';
 import { BulletsFactory } from '../../../bullet_module/bullets_factory/bullets-factory';
+import { Element } from '../../../global/utils/element';
+import { Global } from '../../../global/misc/names';
 
-export class BaseTank {
-	protected gameProxy: GameProxy;
+export class BaseTank extends Element {
 	protected bullet: BaseBullet;
-	protected _name: string;
 	protected _lives = 1;
 	protected _speed = 2;
 	protected texture: PIXI.Texture;
-	protected sprite: PIXI.Sprite;
 	protected container: PIXI.Container;
+	protected collisionDetect: Function;
+	protected time: number = 0;
 
-	constructor(name: string) {
-		this._name = name;
-		this.gameProxy = new GameProxy();
+	constructor(name: string, collisionDetect: Function) {
+		super(name);
 		this.bullet = new BulletsFactory(name) as BaseBullet;
+		this.collisionDetect = collisionDetect;
 	}
 
 	public set lives(lives: number) {
@@ -52,7 +53,7 @@ export class BaseTank {
 	public drawTank(container: PIXI.Container, position: PIXI.Point): void {
 		this.container = container;
 		this.sprite = new PIXI.Sprite(this.texture);
-		this.sprite.anchor.set(0.5);
+		this.sprite.anchor.set(0.5, 0.6);
 		this.sprite.position.copyFrom(position);
 		if (_.isNil(this.gameProxy)) {
 			this.gameProxy = new GameProxy();
@@ -60,13 +61,13 @@ export class BaseTank {
 		this.gameProxy.tanks.push(this.sprite);
 		this.container.addChild(this.sprite);
 		this.sprite.interactive = true;
-		if (this._name === TanksNames.NAMES[0]) {
+		if (this.name === TanksNames.NAMES[0]) {
 			document.onkeydown = this.play.bind(this);
 		}
 	}
 
 	public play(e: KeyboardEvent): void {
-		if (this._name === TanksNames.NAMES[0]) {
+		if (this.name === TanksNames.NAMES[0]) {
 			if (e.code === 'ArrowDown' || e.code === 'KeyS') {
 				this.moveDown();
 				this.gameProxy.loader.loader.resources.move.sound.play({ start: 0, end: 0.1 });
@@ -84,39 +85,63 @@ export class BaseTank {
 				this.gameProxy.loader.loader.resources.move.sound.play({ start: 0, end: 0.1 });
 			}
 			if (e.code === 'Space') {
-				const side = this.getSide(_.round(this.sprite.rotation));
-				const position = this.getBulletPosition(this.sprite.position, side);
-				this.shot(position, side);
+				const time = Date.now();
+				if (time > this.time + 1000) {
+					this.time = time;
+					const side = this.getSide(_.round(this.sprite.rotation));
+					const position = this.getBulletPosition(this.sprite.position, side);
+					this.shot(position, side);
+				}
 			}
 		}
 	}
 
 	protected moveUp(): void {
-		gsap.to(this.sprite, { rotation: 0, duration: 0.2 });
-		if (this.sprite.y >= this.gameProxy.borders.up + this.sprite.getBounds().height / 2) {
-			this.sprite.y -= this.speed;
-		}
+		gsap.to(this.sprite, {
+			rotation: 0,
+			duration: 0.2,
+			onComplete: () => {
+				if (!this.collisionDetect(this, Global.UP)) {
+					this.sprite.y -= this.speed;
+				}
+			}
+		});
 	}
 
 	protected moveDown(): void {
-		gsap.to(this.sprite, { rotation: (180 * Math.PI) / 180, duration: 0.2 });
-		if (this.sprite.y <= this.gameProxy.borders.down - this.sprite.getBounds().height / 2) {
-			this.sprite.y += this.speed;
-		}
+		gsap.to(this.sprite, {
+			rotation: Math.PI,
+			duration: 0.2,
+			onComplete: () => {
+				if (!this.collisionDetect(this, Global.DOWN)) {
+					this.sprite.y += this.speed;
+				}
+			}
+		});
 	}
 
 	protected moveLeft(): void {
-		gsap.to(this.sprite, { rotation: (270 * Math.PI) / 180, duration: 0.2 });
-		if (this.sprite.x >= this.gameProxy.borders.left + this.sprite.getBounds().width / 2) {
-			this.sprite.x -= this.speed;
-		}
+		gsap.to(this.sprite, {
+			rotation: (3 * Math.PI) / 2,
+			duration: 0.2,
+			onComplete: () => {
+				if (!this.collisionDetect(this, Global.LEFT)) {
+					this.sprite.x -= this.speed;
+				}
+			}
+		});
 	}
 
 	protected moveRight(): void {
-		gsap.to(this.sprite, { rotation: (90 * Math.PI) / 180, duration: 0.3 });
-		if (this.sprite.x <= this.gameProxy.borders.right - this.sprite.getBounds().width / 2) {
-			this.sprite.x += this.speed;
-		}
+		gsap.to(this.sprite, {
+			rotation: Math.PI / 2,
+			duration: 0.2,
+			onComplete: () => {
+				if (!this.collisionDetect(this, Global.RIGHT)) {
+					this.sprite.x += this.speed;
+				}
+			}
+		});
 	}
 
 	protected shot(position: PIXI.Point, side: string): void {
@@ -126,13 +151,13 @@ export class BaseTank {
 	protected getSide(side: number): string {
 		switch (side) {
 			case 0:
-				return 'up';
+				return Global.UP;
 			case 2:
-				return 'right';
+				return Global.RIGHT;
 			case 3:
-				return 'down';
+				return Global.DOWN;
 			case 5:
-				return 'left';
+				return Global.LEFT;
 		}
 	}
 
@@ -140,17 +165,17 @@ export class BaseTank {
 		let x = position.x;
 		let y = position.y;
 		switch (side) {
-			case 'up':
-				y -= 21;
+			case Global.UP:
+				y -= 16;
 				break;
-			case 'right':
-				x += 21;
+			case Global.RIGHT:
+				x += 14;
 				break;
-			case 'down':
-				y += 21;
+			case Global.DOWN:
+				y += 14;
 				break;
-			case 'left':
-				x -= 21;
+			case Global.LEFT:
+				x -= 14;
 				break;
 		}
 		return new PIXI.Point(x, y);

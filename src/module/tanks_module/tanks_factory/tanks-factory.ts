@@ -15,11 +15,11 @@ import { EnemyTank } from './enemy_tank/enemy-tank';
 import { BaseTank } from './base_tank/base-tank';
 
 export class TanksFactory {
-	getTank(name: string): BaseTank {
+	getTank(name: string, collisionDetect: Function): BaseTank {
 		if (name === TanksNames.NAMES[0]) {
-			return new PlayerTank(TanksNames.NAMES[0]);
+			return new PlayerTank(TanksNames.NAMES[0], collisionDetect);
 		} else if (name === TanksNames.NAMES[1]) {
-			return new EnemyTank(TanksNames.NAMES[1]);
+			return new EnemyTank(TanksNames.NAMES[1], collisionDetect);
 		} else return null;
 	}
 }

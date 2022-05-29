@@ -11,8 +11,8 @@
 import { BaseTexture } from '../base_texture/base-texture';
 
 export class Eagle extends BaseTexture {
-	constructor() {
-		super();
+	constructor(row: number, column: number) {
+		super(row, column);
 		this.name = 'eagle';
 		this.texture = this.gameProxy.loader.loader.resources.eagle.texture;
 		this.destroyable = true;

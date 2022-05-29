@@ -11,15 +11,10 @@
 import * as PIXI from 'pixi.js';
 import { GameProxy } from '../../../game_module/proxy/game-proxy';
 import * as _ from 'lodash';
+import { Element } from '../../../global/utils/element';
 
-export class BaseBullet {
-	protected _name: string;
-	protected gameProxy: GameProxy;
+export class BaseBullet extends Element {
 	protected textureBullet: PIXI.Texture;
-	constructor(name: string) {
-		this._name = name;
-		this.gameProxy = new GameProxy();
-	}
 
 	public makeBullet(container: PIXI.Container, position: PIXI.Point, side: string): void {
 		const bullet = new PIXI.Sprite(this.textureBullet);

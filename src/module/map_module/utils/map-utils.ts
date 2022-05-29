@@ -12,6 +12,7 @@ import * as _ from 'lodash';
 import { Wall } from '../components/wall/wall';
 import { Eagle } from '../components/eagle/eagle';
 import { BrickWall } from '../components/brick_wall/brick-wall';
+import { Point } from 'pixi.js';
 
 export class MapUtils {
 	public static TILES: _.NumericDictionary<any> = { 1: Wall, 2: BrickWall, 5: Eagle };
@@ -37,4 +38,6 @@ export class MapUtils {
 		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 	];
+
+	public static PLAYER_START: Point = new Point(13 * 36, 17 * 36);
 }
