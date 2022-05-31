@@ -34,9 +34,7 @@ module.exports = {
 			{
 				test: /\.(scss|css)$/,
 				use: [
-					process.env.NODE_ENV !== 'production'
-						? 'style-loader'
-						: MiniCssExtractPlugin.loader,
+					process.env.NODE_ENV !== 'production' ? 'styles-loader' : MiniCssExtractPlugin.loader,
 					'css-loader',
 					{
 						loader: 'sass-loader',
@@ -53,9 +51,9 @@ module.exports = {
 	},
 	plugins: [
 		new MiniCssExtractPlugin({
-		filename: '[name].[contenthash].css',
-		chunkFilename: '[id].css'
-	}),
+			filename: '[name].[contenthash].css',
+			chunkFilename: '[id].css'
+		}),
 		new CleanWebpackPlugin(),
 		new HtmlWebpackPlugin({
 			template: './src/index.html'

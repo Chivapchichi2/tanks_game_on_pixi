@@ -11,16 +11,17 @@
 
 import { TanksNames } from '../../tanks_module/misc/tanks-names';
 import { PlayerBullet } from './player_bullet/player-bullet';
+import { Global } from '../../global/misc/names';
+import { EnemyBullet } from './enemy_bullet/enemy-bullet';
 
 export class BulletsFactory {
 	constructor(name: string) {
-		if (name === TanksNames.NAMES[0]) {
-			return new PlayerBullet(TanksNames.NAMES[0]);
+		if (name === TanksNames.NAMES[0] + Global.BULLET) {
+			return new PlayerBullet(name);
+		} else if (name === TanksNames.NAMES[1]) {
+			return new EnemyBullet(TanksNames.NAMES[1]);
 		} else {
 			return null;
 		}
-		// 	else if (name === TanksNames.NAMES[1]) {
-		// 		return new EnemyBullet(TanksNames.NAMES[1]);
-		// }
 	}
 }

@@ -54,7 +54,7 @@ export class Loader {
 		this.loader.add('win', './assets/sounds/win.wav');
 		this.loader.add('start', './assets/sounds/start.mp3');
 		this.loader.add('move', './assets/sounds/move.mp3');
-		this.loader.add('eagle-destroy', './assets/sounds/eagle-destroy.mp3');
+		this.loader.add('eagle_destroy', './assets/sounds/eagle-destroy.mp3');
 		this.loader.add('enemy_blue', './assets/tanks/enemy_blue.png');
 		this.loader.add('enemy_red', './assets/tanks/enemy_red.png');
 		this.loader.add('enemy_white', './assets/tanks/enemy_white.png');
@@ -66,6 +66,7 @@ export class Loader {
 		this.loader.add('explode', './assets/explode.png');
 		this.loader.add('explode_small', './assets/explode_small.png');
 		this.loader.add('scores', './assets/scores.png');
+		this.loader.add('game_over', './assets/game_over.jpg');
 		this.loader.onLoad.add((loader) => {
 			const length = _.keys(loader.resources).length - 2;
 			this.foolBar.width += 800 / length;

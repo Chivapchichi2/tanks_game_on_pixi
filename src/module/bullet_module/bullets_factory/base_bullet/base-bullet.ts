@@ -17,15 +17,15 @@ export class BaseBullet extends Element {
 	protected textureBullet: PIXI.Texture;
 
 	public makeBullet(container: PIXI.Container, position: PIXI.Point, side: string): void {
-		const bullet = new PIXI.Sprite(this.textureBullet);
-		bullet.name = side;
-		bullet.anchor.set(0.5);
-		bullet.position.copyFrom(position);
-		container.addChild(bullet);
+		this.sprite = new PIXI.Sprite(this.textureBullet);
+		this.sprite.name = side;
+		this.sprite.anchor.set(0.5);
+		this.sprite.position.copyFrom(position);
+		container.addChild(this.sprite);
 		if (_.isNil(this.gameProxy)) {
 			this.gameProxy = new GameProxy();
 		}
-		this.gameProxy.bullets.push(bullet);
+		this.gameProxy.bullets.push(this);
 		this.gameProxy.loader.loader.resources.shot.sound.play();
 	}
 }

@@ -40,4 +40,9 @@ export class MapUtils {
 	];
 
 	public static PLAYER_START: Point = new Point(13 * 36, 17 * 36);
+	public static ENEMY_START: Point[] = [
+		new Point(2 * 36, 2 * 36),
+		new Point(13 * 36, 2 * 36),
+		new Point(24 * 36, 2 * 36)
+	];
 }

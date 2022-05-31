@@ -18,8 +18,8 @@ import { Wall } from '../../map_module/components/wall/wall';
 import { MapUtils } from '../../map_module/utils/map-utils';
 
 export class GameProxy {
-	public bullets: PIXI.Sprite[] = [];
-	public tanks: PIXI.Sprite[] = [];
+	public bullets: any[] = [];
+	public tanks: any[] = [];
 	public map: number[][];
 	public lvl: any[][] = [[]];
 	public bulletSpeed = 4;
@@ -28,7 +28,9 @@ export class GameProxy {
 	public game: Game;
 	public tanksFactory: TanksFactory;
 	public wall: Wall;
-	protected mediator: GameMediator;
+	public mediator: GameMediator;
+	public win: boolean;
+	public score: number;
 	protected static instance: GameProxy;
 	protected static exists: boolean;
 	constructor(app?: PIXI.Application, game?: Game, mediator?: GameMediator) {

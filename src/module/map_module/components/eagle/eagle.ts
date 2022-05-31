@@ -9,6 +9,8 @@
  * Created by Pavlo Ivchenko on 16.05.2022
  */
 import { BaseTexture } from '../base_texture/base-texture';
+import { gsap } from 'gsap';
+import { Animation } from '../../../global/utils/animation';
 
 export class Eagle extends BaseTexture {
 	constructor(row: number, column: number) {
@@ -17,5 +19,24 @@ export class Eagle extends BaseTexture {
 		this.texture = this.gameProxy.loader.loader.resources.eagle.texture;
 		this.destroyable = true;
 		this.collision = true;
+	}
+
+	protected explode(): void {
+		const animatedSprite = Animation.EXPLODE(this.gameProxy);
+
+		this.sprite.addChild(animatedSprite);
+		animatedSprite.animationSpeed = 0.2;
+		animatedSprite.loop = false;
+		animatedSprite.onComplete = () => {
+			this.sprite.removeChild(animatedSprite);
+			animatedSprite.destroy();
+			this.sprite.destroy();
+			this.gameProxy.win = false;
+			gsap.delayedCall(1, () => {
+				this.gameProxy.game.state.nextState(this.gameProxy.mediator.play.bind(this.gameProxy.mediator));
+			});
+		};
+		animatedSprite.play();
+		this.gameProxy.loader.loader.resources.eagle_destroy.sound.play();
 	}
 }

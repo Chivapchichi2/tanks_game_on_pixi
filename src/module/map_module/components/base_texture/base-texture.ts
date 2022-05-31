@@ -8,9 +8,10 @@
  *
  * Created by Pavlo Ivchenko on 15.05.2022
  */
-import { Texture, Sprite, Rectangle, AnimatedSprite } from 'pixi.js';
+import { Texture, Sprite } from 'pixi.js';
 import { Element } from '../../../global/utils/element';
 import { Global } from '../../../global/misc/names';
+import { Animation } from '../../../global/utils/animation';
 
 export class BaseTexture extends Element {
 	public destroyable: boolean;
@@ -36,16 +37,7 @@ export class BaseTexture extends Element {
 	}
 
 	protected explode(side?: string): void {
-		const texture = this.gameProxy.loader.loader.resources.explode_small.texture;
-		const textureArray = [];
-		for (let i = 0; i < 8; i++) {
-			const t = texture.clone();
-			t.frame = new Rectangle(i * 48, 0, 48, 48);
-			t.updateUvs();
-			textureArray.push(t);
-		}
-		const animatedSprite = new AnimatedSprite(textureArray);
-		animatedSprite.anchor.set(0.5);
+		const animatedSprite = Animation.SMALL_EXPLODE(this.gameProxy);
 		switch (side) {
 			case Global.UP:
 				animatedSprite.position.set(0, 12);

@@ -18,6 +18,7 @@ import { Names } from '../misk/names';
 import { Sprite } from 'pixi.js';
 import { TanksNames } from '../../tanks_module/misc/tanks-names';
 import { Global } from '../../global/misc/names';
+import { BaseTank } from '../../tanks_module/tanks_factory/base_tank/base-tank';
 
 export class GameMediator {
 	public app: PIXI.Application;
@@ -51,20 +52,18 @@ export class GameMediator {
 		}
 
 		if (state.name === Names.STATE_MAIN) {
+			this.proxy.score = 0;
 			this.view.mainGame();
+		}
+
+		if (state.name === Names.STATE_GAME_OVER) {
+			this.view.gameOver();
 		}
 	}
 
 	protected collisionCheck(a: any, b: any, side: string): boolean {
 		if (_.isNil(b)) return false;
-		let aObj = a.getBounds();
-		if (aObj.x && aObj.y) {
-			const minX = aObj.x;
-			const maxX = aObj.x + aObj.width;
-			const minY = aObj.y;
-			const maxY = aObj.y + aObj.height;
-			aObj = { minX, maxX, minY, maxY };
-		}
+		const aObj = a.getBounds();
 		const bObj = b.getBounds();
 		switch (side) {
 			case Global.UP:
@@ -99,35 +98,34 @@ export class GameMediator {
 	}
 
 	public collisionDetect(obj: any, side: string): boolean {
-		const a = obj.sprite ? obj.sprite : obj;
-		let [row, column] = this.getTitlePosition(a);
+		let [row, column] = this.getTitlePosition(obj.sprite);
 		let row1 = row,
 			column1 = column;
 		const isTank: boolean = _.includes(TanksNames.NAMES, obj.name);
 		switch (side) {
 			case Global.UP:
-				column1 = this.checkHorizontal(a, column);
+				column1 = this.checkHorizontal(obj.sprite, column);
 				if (isTank) {
 					row--;
 					row1--;
 				}
 				break;
 			case Global.DOWN:
-				column1 = this.checkHorizontal(a, column);
+				column1 = this.checkHorizontal(obj.sprite, column);
 				if (isTank) {
 					row++;
 					row1++;
 				}
 				break;
 			case Global.LEFT:
-				row1 = this.checkVertical(a, row1);
+				row1 = this.checkVertical(obj.sprite, row1);
 				if (isTank) {
 					column--;
 					column1--;
 				}
 				break;
 			case Global.RIGHT:
-				row1 = this.checkVertical(a, row1);
+				row1 = this.checkVertical(obj.sprite, row1);
 				if (isTank) {
 					column++;
 					column1++;
@@ -146,6 +144,38 @@ export class GameMediator {
 		if (secondCollision && !firstCollision && !isTank) {
 			this.proxy.lvl[row1][column1].shot(side);
 		}
-		return firstCollision || secondCollision;
+
+		let tankCollision = false;
+		const tanks: any[] = _.filter(this.proxy.tanks, (tank) => tank !== obj);
+		_.each(tanks, (tank) => {
+			if (tank.name + Global.BULLET !== obj.name && this.fullCollision(obj, tank, side)) {
+				tankCollision = true;
+				if (_.includes(obj.name, Global.BULLET)) {
+					tank.destroy();
+				}
+			}
+		});
+
+		return firstCollision || secondCollision || tankCollision;
+	}
+
+	protected fullCollision(a: any, b: BaseTank, side: string): boolean {
+		const aObj = a.getBounds();
+		const bObj = b.getBounds();
+		switch (side) {
+			case Global.UP:
+				aObj.maxY -= 3;
+				break;
+			case Global.DOWN:
+				aObj.minY += 3;
+				break;
+			case Global.LEFT:
+				aObj.minX -= 3;
+				break;
+			case Global.RIGHT:
+				aObj.maxX += 3;
+				break;
+		}
+		return aObj.minX < bObj.maxX && aObj.maxX > bObj.minX && aObj.minY < bObj.maxY && aObj.maxY > bObj.minY;
 	}
 }

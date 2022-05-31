@@ -10,11 +10,14 @@
  */
 import * as _ from 'lodash';
 import * as PIXI from 'pixi.js';
+import { gsap } from 'gsap';
 import { GameProxy } from '../proxy/game-proxy';
 import { GameMediator } from '../mediator/game-mediator';
 import { TanksNames } from '../../tanks_module/misc/tanks-names';
 import { MapUtils } from '../../map_module/utils/map-utils';
 import { Global } from '../../global/misc/names';
+import { styles } from '../../global/utils/styles';
+import { BaseBullet } from '../../bullet_module/bullets_factory/base_bullet/base-bullet';
 
 export class GameView {
 	protected gameProxy: GameProxy;
@@ -31,60 +34,60 @@ export class GameView {
 		});
 	}
 
-	protected move(sprite: PIXI.Sprite): void {
-		if (sprite) {
-			switch (sprite.name) {
+	protected move(bullet: BaseBullet): void {
+		if (bullet?.sprite) {
+			switch (bullet.sprite.name) {
 				case Global.UP:
-					this.moveUp(sprite);
+					this.moveUp(bullet);
 					break;
 				case Global.RIGHT:
-					this.moveRight(sprite);
+					this.moveRight(bullet);
 					break;
 				case Global.DOWN:
-					this.moveDown(sprite);
+					this.moveDown(bullet);
 					break;
 				case Global.LEFT:
-					this.moveLeft(sprite);
+					this.moveLeft(bullet);
 					break;
 				default:
-					this.moveUp(sprite);
+					this.moveUp(bullet);
 			}
 		}
 	}
 
-	protected moveUp(sprite: PIXI.Sprite): void {
-		if (!this.gameMediator.collisionDetect(sprite, Global.UP)) {
-			sprite.y -= this.gameProxy.bulletSpeed;
+	protected moveUp(bullet: BaseBullet): void {
+		if (!this.gameMediator.collisionDetect(bullet, Global.UP)) {
+			bullet.sprite.y -= this.gameProxy.bulletSpeed;
 		} else {
-			_.remove(this.gameProxy.bullets, sprite);
-			sprite.destroy();
+			_.remove(this.gameProxy.bullets, bullet);
+			bullet.sprite.destroy();
 		}
 	}
 
-	protected moveDown(sprite: PIXI.Sprite): void {
-		if (!this.gameMediator.collisionDetect(sprite, Global.DOWN)) {
-			sprite.y += this.gameProxy.bulletSpeed;
+	protected moveDown(bullet: BaseBullet): void {
+		if (!this.gameMediator.collisionDetect(bullet, Global.DOWN)) {
+			bullet.sprite.y += this.gameProxy.bulletSpeed;
 		} else {
-			_.remove(this.gameProxy.bullets, sprite);
-			sprite.destroy();
+			_.remove(this.gameProxy.bullets, bullet);
+			bullet.sprite.destroy();
 		}
 	}
 
-	protected moveLeft(sprite: PIXI.Sprite): void {
-		if (!this.gameMediator.collisionDetect(sprite, Global.LEFT)) {
-			sprite.x -= this.gameProxy.bulletSpeed;
+	protected moveLeft(bullet: BaseBullet): void {
+		if (!this.gameMediator.collisionDetect(bullet, Global.LEFT)) {
+			bullet.sprite.x -= this.gameProxy.bulletSpeed;
 		} else {
-			_.remove(this.gameProxy.bullets, sprite);
-			sprite.destroy();
+			_.remove(this.gameProxy.bullets, bullet);
+			bullet.sprite.destroy();
 		}
 	}
 
-	protected moveRight(sprite: PIXI.Sprite): void {
-		if (!this.gameMediator.collisionDetect(sprite, Global.RIGHT)) {
-			sprite.x += this.gameProxy.bulletSpeed;
+	protected moveRight(bullet: BaseBullet): void {
+		if (!this.gameMediator.collisionDetect(bullet, Global.RIGHT)) {
+			bullet.sprite.x += this.gameProxy.bulletSpeed;
 		} else {
-			_.remove(this.gameProxy.bullets, sprite);
-			sprite.destroy();
+			_.remove(this.gameProxy.bullets, bullet);
+			bullet.sprite.destroy();
 		}
 	}
 
@@ -122,6 +125,11 @@ export class GameView {
 		this.gameProxy.tanksFactory
 			.getTank(TanksNames.NAMES[0], this.gameMediator.collisionDetect.bind(this.gameMediator))
 			.drawTank(this.app.stage, MapUtils.PLAYER_START);
+		for (let i = 0; i < 3; i++) {
+			this.gameProxy.tanksFactory
+				.getTank(TanksNames.NAMES[1], this.gameMediator.collisionDetect.bind(this.gameMediator))
+				.drawTank(this.app.stage, MapUtils.ENEMY_START[i]);
+		}
 	}
 
 	protected drawMap(): void {
@@ -137,5 +145,40 @@ export class GameView {
 				}
 			});
 		});
+	}
+
+	public gameOver(): void {
+		this.clean();
+		const score = new PIXI.Text(this.gameProxy.score.toString(), styles);
+		score.anchor.set(0.5);
+		score.position.set(1024 / 2, 768 / 1.25);
+
+		const title: PIXI.Sprite = new PIXI.Sprite(this.gameProxy.loader.loader.resources.scores.texture);
+		title.anchor.set(0.5);
+		title.position.set(1024 / 2, 768 / 1.5);
+
+		this.app.stage.addChild(title, score);
+		this.app.stage.interactive = true;
+		this.app.stage.buttonMode = true;
+		this.app.stage.on('pointerdown', () => {
+			this.gameProxy.game.state.nextState(this.gameMediator.play.bind(this.gameMediator));
+			this.app.stage.removeAllListeners();
+			this.app.stage.interactive = false;
+			this.app.stage.buttonMode = false;
+		});
+		if (this.gameProxy.win) {
+			this.gameProxy.loader.loader.resources.win.sound.play();
+		} else {
+			const gameOver: PIXI.Sprite = new PIXI.Sprite(this.gameProxy.loader.loader.resources.game_over.texture);
+			gameOver.anchor.set(0.5);
+			gameOver.position.set(1024 / 2, -200);
+			this.app.stage.addChild(gameOver);
+			gsap.to(gameOver.position, {
+				duration: 3,
+				y: 768 / 3
+			});
+
+			this.gameProxy.loader.loader.resources.lose.sound.play();
+		}
 	}
 }

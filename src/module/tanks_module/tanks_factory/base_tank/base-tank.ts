@@ -18,19 +18,20 @@ import { BaseBullet } from '../../../bullet_module/bullets_factory/base_bullet/b
 import { BulletsFactory } from '../../../bullet_module/bullets_factory/bullets-factory';
 import { Element } from '../../../global/utils/element';
 import { Global } from '../../../global/misc/names';
+import { Animation } from '../../../global/utils/animation';
 
 export class BaseTank extends Element {
-	protected bullet: BaseBullet;
 	protected _lives = 1;
 	protected _speed = 2;
 	protected texture: PIXI.Texture;
 	protected container: PIXI.Container;
 	protected collisionDetect: Function;
 	protected time: number = 0;
+	protected destroyable: boolean = false;
 
 	constructor(name: string, collisionDetect: Function) {
 		super(name);
-		this.bullet = new BulletsFactory(name) as BaseBullet;
+
 		this.collisionDetect = collisionDetect;
 	}
 
@@ -55,15 +56,38 @@ export class BaseTank extends Element {
 		this.sprite = new PIXI.Sprite(this.texture);
 		this.sprite.anchor.set(0.5, 0.6);
 		this.sprite.position.copyFrom(position);
+		if (this.name === TanksNames.NAMES[1]) {
+			this.sprite.rotation = Math.PI;
+		}
 		if (_.isNil(this.gameProxy)) {
 			this.gameProxy = new GameProxy();
 		}
-		this.gameProxy.tanks.push(this.sprite);
-		this.container.addChild(this.sprite);
-		this.sprite.interactive = true;
-		if (this.name === TanksNames.NAMES[0]) {
-			document.onkeydown = this.play.bind(this);
-		}
+
+		const animatedSprite = Animation.APPEAR(this.gameProxy);
+		animatedSprite.position.copyFrom(position);
+		this.container.addChild(animatedSprite);
+		animatedSprite.animationSpeed = 0.2;
+		animatedSprite.loop = false;
+		animatedSprite.onComplete = () => {
+			this.container.removeChild(animatedSprite);
+			animatedSprite.destroy();
+			this.gameProxy.tanks.push(this);
+			this.container.addChild(this.sprite);
+			this.sprite.alpha = 0;
+			gsap.to(this.sprite, {
+				duration: 0.3,
+				alpha: 1,
+				repeat: 4,
+				yoyo: true,
+				onComplete: () => {
+					if (this.name === TanksNames.NAMES[0]) {
+						document.onkeydown = this.play.bind(this);
+					}
+					this.destroyable = true;
+				}
+			});
+		};
+		animatedSprite.play();
 	}
 
 	public play(e: KeyboardEvent): void {
@@ -92,6 +116,9 @@ export class BaseTank extends Element {
 					const position = this.getBulletPosition(this.sprite.position, side);
 					this.shot(position, side);
 				}
+			}
+			if (e.code === 'Escape') {
+				this.destroy();
 			}
 		}
 	}
@@ -145,7 +172,8 @@ export class BaseTank extends Element {
 	}
 
 	protected shot(position: PIXI.Point, side: string): void {
-		this.bullet.makeBullet(this.container, position, side);
+		const bullet = new BulletsFactory(this.name + 'Bullet') as BaseBullet;
+		bullet.makeBullet(this.container, position, side);
 	}
 
 	protected getSide(side: number): string {
@@ -179,5 +207,37 @@ export class BaseTank extends Element {
 				break;
 		}
 		return new PIXI.Point(x, y);
+	}
+
+	public destroy(): void {
+		if (this.destroyable) return;
+
+		const animatedSprite = Animation.EXPLODE(this.gameProxy);
+
+		this.sprite.addChild(animatedSprite);
+		animatedSprite.animationSpeed = 0.2;
+		animatedSprite.loop = false;
+		animatedSprite.onComplete = () => {
+			this.sprite.removeChild(animatedSprite);
+			animatedSprite.destroy();
+			try {
+				this.sprite.destroy();
+			} catch (error) {
+				console.log(error);
+			}
+
+			this.gameProxy.tanks = _.filter(this.gameProxy.tanks, (el) => el != this);
+			if (this.name === TanksNames.NAMES[0]) {
+				document.onkeydown = null;
+				this.gameProxy.win = false;
+				gsap.delayedCall(1, () => {
+					this.gameProxy.game.state.nextState(this.gameProxy.mediator.play.bind(this.gameProxy.mediator));
+				});
+			} else {
+				this.gameProxy.score += 10;
+			}
+		};
+		animatedSprite.play();
+		this.gameProxy.loader.loader.resources.eagle_destroy.sound.play();
 	}
 }

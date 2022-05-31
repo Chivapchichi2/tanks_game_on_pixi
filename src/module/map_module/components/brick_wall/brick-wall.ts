@@ -47,6 +47,7 @@ export class BrickWall extends BaseTexture {
 	}
 
 	public shot(side: string): void {
+		this.gameProxy.score++;
 		let index: number;
 		let length: number = this.sprite.children.length;
 
