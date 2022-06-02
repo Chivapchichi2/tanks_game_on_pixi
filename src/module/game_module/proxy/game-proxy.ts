@@ -22,7 +22,7 @@ export class GameProxy {
 	public tanks: any[] = [];
 	public map: number[][];
 	public lvl: any[][] = [[]];
-	public bulletSpeed = 4;
+	public bulletSpeed = 5;
 	public loader: Loader;
 	public app: PIXI.Application;
 	public game: Game;

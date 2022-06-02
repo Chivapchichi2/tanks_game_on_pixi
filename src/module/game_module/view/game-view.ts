@@ -18,6 +18,7 @@ import { MapUtils } from '../../map_module/utils/map-utils';
 import { Global } from '../../global/misc/names';
 import { styles } from '../../global/utils/styles';
 import { BaseBullet } from '../../bullet_module/bullets_factory/base_bullet/base-bullet';
+import { Timer } from '../components/timer';
 
 export class GameView {
 	protected gameProxy: GameProxy;
@@ -31,6 +32,10 @@ export class GameView {
 
 		this.app.ticker.add(() => {
 			_.each(this.gameProxy.bullets, this.move.bind(this));
+			_.each(this.gameProxy.tanks, (tank) => {
+				if (tank.name === TanksNames.NAMES[0]) return;
+				if (tank.appear && tank.sprite) tank.play();
+			});
 		});
 	}
 
@@ -111,6 +116,8 @@ export class GameView {
 	}
 
 	public clean(): void {
+		this.gameProxy.tanks = [];
+		this.gameProxy.bullets = [];
 		if (this.app.stage.children.length > 0) {
 			this.app.stage.removeChildAt(0);
 			this.clean();
@@ -119,6 +126,7 @@ export class GameView {
 
 	public mainGame(): void {
 		this.clean();
+		new Timer(2, this.app);
 		this.gameProxy.loader.loader.resources.start.sound.play();
 		this.drawMap();
 

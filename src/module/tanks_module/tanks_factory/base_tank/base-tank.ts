@@ -21,8 +21,9 @@ import { Global } from '../../../global/misc/names';
 import { Animation } from '../../../global/utils/animation';
 
 export class BaseTank extends Element {
+	public appear: boolean = false;
 	protected _lives = 1;
-	protected _speed = 2;
+	protected _speed = 1;
 	protected texture: PIXI.Texture;
 	protected container: PIXI.Container;
 	protected collisionDetect: Function;
@@ -84,96 +85,82 @@ export class BaseTank extends Element {
 						document.onkeydown = this.play.bind(this);
 					}
 					this.destroyable = true;
+					this.appear = true;
 				}
 			});
 		};
 		animatedSprite.play();
 	}
 
-	public play(e: KeyboardEvent): void {
-		if (this.name === TanksNames.NAMES[0]) {
-			if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-				this.moveDown();
-				this.gameProxy.loader.loader.resources.move.sound.play({ start: 0, end: 0.1 });
-			}
-			if (e.code === 'ArrowUp' || e.code === 'KeyW') {
-				this.moveUp();
-				this.gameProxy.loader.loader.resources.move.sound.play({ start: 0, end: 0.1 });
-			}
-			if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
-				this.moveLeft();
-				this.gameProxy.loader.loader.resources.move.sound.play({ start: 0, end: 0.1 });
-			}
-			if (e.code === 'ArrowRight' || e.code === 'KeyD') {
-				this.moveRight();
-				this.gameProxy.loader.loader.resources.move.sound.play({ start: 0, end: 0.1 });
-			}
-			if (e.code === 'Space') {
-				const time = Date.now();
-				if (time > this.time + 1000) {
-					this.time = time;
-					const side = this.getSide(_.round(this.sprite.rotation));
-					const position = this.getBulletPosition(this.sprite.position, side);
-					this.shot(position, side);
+	protected moveUp(): void {
+		if (this.sprite) {
+			gsap.to(this.sprite, {
+				rotation: 0,
+				duration: 0.2,
+				onComplete: () => {
+					if (!this.collisionDetect(this, Global.UP)) {
+						this.sprite.y -= this.speed;
+					}
 				}
-			}
-			if (e.code === 'Escape') {
-				this.destroy();
-			}
+			});
 		}
 	}
 
-	protected moveUp(): void {
-		gsap.to(this.sprite, {
-			rotation: 0,
-			duration: 0.2,
-			onComplete: () => {
-				if (!this.collisionDetect(this, Global.UP)) {
-					this.sprite.y -= this.speed;
-				}
-			}
-		});
-	}
-
 	protected moveDown(): void {
-		gsap.to(this.sprite, {
-			rotation: Math.PI,
-			duration: 0.2,
-			onComplete: () => {
-				if (!this.collisionDetect(this, Global.DOWN)) {
-					this.sprite.y += this.speed;
+		if (this.sprite) {
+			gsap.to(this.sprite, {
+				rotation: Math.PI,
+				duration: 0.2,
+				onComplete: () => {
+					if (!this.collisionDetect(this, Global.DOWN)) {
+						this.sprite.y += this.speed;
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	protected moveLeft(): void {
-		gsap.to(this.sprite, {
-			rotation: (3 * Math.PI) / 2,
-			duration: 0.2,
-			onComplete: () => {
-				if (!this.collisionDetect(this, Global.LEFT)) {
-					this.sprite.x -= this.speed;
+		if (this.sprite) {
+			gsap.to(this.sprite, {
+				rotation: (3 * Math.PI) / 2,
+				duration: 0.2,
+				onComplete: () => {
+					if (!this.collisionDetect(this, Global.LEFT)) {
+						this.sprite.x -= this.speed;
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	protected moveRight(): void {
-		gsap.to(this.sprite, {
-			rotation: Math.PI / 2,
-			duration: 0.2,
-			onComplete: () => {
-				if (!this.collisionDetect(this, Global.RIGHT)) {
-					this.sprite.x += this.speed;
+		if (this.sprite) {
+			gsap.to(this.sprite, {
+				rotation: Math.PI / 2,
+				duration: 0.2,
+				onComplete: () => {
+					if (!this.collisionDetect(this, Global.RIGHT)) {
+						this.sprite.x += this.speed;
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	protected shot(position: PIXI.Point, side: string): void {
 		const bullet = new BulletsFactory(this.name + 'Bullet') as BaseBullet;
 		bullet.makeBullet(this.container, position, side);
+	}
+
+	protected makeShot(delay: number = 1000): void {
+		const time = Date.now();
+		if (time > this.time + delay) {
+			this.time = time;
+			const side = this.getSide(_.round(this.sprite.rotation));
+			const position = this.getBulletPosition(this.sprite.position, side);
+			this.shot(position, side);
+		}
 	}
 
 	protected getSide(side: number): string {
@@ -210,23 +197,25 @@ export class BaseTank extends Element {
 	}
 
 	public destroy(): void {
-		if (this.destroyable) return;
+		if (!this.destroyable) return;
 
 		const animatedSprite = Animation.EXPLODE(this.gameProxy);
+		animatedSprite.position.copyFrom(this.sprite.position);
+		try {
+			this.gameProxy.app.stage.removeChild(this.sprite);
+			this.sprite.destroy();
+		} catch (error) {
+			console.log(error);
+		}
 
-		this.sprite.addChild(animatedSprite);
+		this.gameProxy.tanks = _.filter(this.gameProxy.tanks, (el) => el != this);
+		this.gameProxy.app.stage.addChild(animatedSprite);
 		animatedSprite.animationSpeed = 0.2;
 		animatedSprite.loop = false;
 		animatedSprite.onComplete = () => {
-			this.sprite.removeChild(animatedSprite);
+			this.gameProxy.app.stage.removeChild(animatedSprite);
 			animatedSprite.destroy();
-			try {
-				this.sprite.destroy();
-			} catch (error) {
-				console.log(error);
-			}
 
-			this.gameProxy.tanks = _.filter(this.gameProxy.tanks, (el) => el != this);
 			if (this.name === TanksNames.NAMES[0]) {
 				document.onkeydown = null;
 				this.gameProxy.win = false;
@@ -240,4 +229,6 @@ export class BaseTank extends Element {
 		animatedSprite.play();
 		this.gameProxy.loader.loader.resources.eagle_destroy.sound.play();
 	}
+
+	public play(): void {}
 }

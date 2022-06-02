@@ -30,7 +30,11 @@ export class Eagle extends BaseTexture {
 		animatedSprite.onComplete = () => {
 			this.sprite.removeChild(animatedSprite);
 			animatedSprite.destroy();
-			this.sprite.destroy();
+			try {
+				this.sprite.destroy();
+			} catch (error) {
+				console.log(error);
+			}
 			this.gameProxy.win = false;
 			gsap.delayedCall(1, () => {
 				this.gameProxy.game.state.nextState(this.gameProxy.mediator.play.bind(this.gameProxy.mediator));

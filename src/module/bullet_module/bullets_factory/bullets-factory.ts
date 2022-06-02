@@ -18,8 +18,8 @@ export class BulletsFactory {
 	constructor(name: string) {
 		if (name === TanksNames.NAMES[0] + Global.BULLET) {
 			return new PlayerBullet(name);
-		} else if (name === TanksNames.NAMES[1]) {
-			return new EnemyBullet(TanksNames.NAMES[1]);
+		} else if (name === TanksNames.NAMES[1] + Global.BULLET) {
+			return new EnemyBullet(name);
 		} else {
 			return null;
 		}

@@ -74,7 +74,11 @@ export class BrickWall extends BaseTexture {
 			length--;
 			if (!length) {
 				gsap.delayedCall(0.8, () => {
-					this.sprite.destroy();
+					try {
+						this.sprite.destroy();
+					} catch (error) {
+						console.log(error);
+					}
 					this.gameProxy.lvl[this.row][this.column] = null;
 				});
 			}
