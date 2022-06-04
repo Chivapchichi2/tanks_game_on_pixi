@@ -15,10 +15,10 @@ import * as PIXI from 'pixi.js';
 import { State } from '../misk/states';
 import { Game } from '../game';
 import { Names } from '../misk/names';
-import { Sprite } from 'pixi.js';
 import { TanksNames } from '../../tanks_module/misc/tanks-names';
 import { Global } from '../../global/misc/names';
 import { BaseTank } from '../../tanks_module/tanks_factory/base_tank/base-tank';
+import { Utils } from '../../global/utils/utils';
 
 export class GameMediator {
 	public app: PIXI.Application;
@@ -77,55 +77,35 @@ export class GameMediator {
 		}
 	}
 
-	protected checkHorizontal(sprite: Sprite, column: number): number {
-		const bounds = sprite.getBounds();
-		const x1 = Math.floor((bounds.x - 18) / 36);
-		const x2 = Math.floor((bounds.x + bounds.width - 18) / 36);
-		return x1 === column ? x2 : x1;
-	}
-
-	protected checkVertical(sprite: Sprite, row: number): number {
-		const bounds = sprite.getBounds();
-		const y1 = Math.floor((bounds.y - 18) / 36);
-		const y2 = Math.floor((bounds.y + bounds.height - 18) / 36);
-		return y1 === row ? y2 : y1;
-	}
-
-	protected getTitlePosition(sprite: Sprite): number[] {
-		const row = Math.floor((sprite.position.y - 18) / 36);
-		const column = Math.floor((sprite.position.x - 18) / 36);
-		return [row, column];
-	}
-
 	public collisionDetect(obj: any, side: string): boolean {
-		let [row, column] = this.getTitlePosition(obj.sprite);
+		let [row, column] = Utils.getTitlePosition(obj.sprite);
 		let row1 = row,
 			column1 = column;
 		const isTank: boolean = _.includes(TanksNames.NAMES, obj.name);
 		switch (side) {
 			case Global.UP:
-				column1 = this.checkHorizontal(obj.sprite, column);
+				column1 = Utils.checkHorizontal(obj.sprite, column);
 				if (isTank) {
 					row--;
 					row1--;
 				}
 				break;
 			case Global.DOWN:
-				column1 = this.checkHorizontal(obj.sprite, column);
+				column1 = Utils.checkHorizontal(obj.sprite, column);
 				if (isTank) {
 					row++;
 					row1++;
 				}
 				break;
 			case Global.LEFT:
-				row1 = this.checkVertical(obj.sprite, row1);
+				row1 = Utils.checkVertical(obj.sprite, row1);
 				if (isTank) {
 					column--;
 					column1--;
 				}
 				break;
 			case Global.RIGHT:
-				row1 = this.checkVertical(obj.sprite, row1);
+				row1 = Utils.checkVertical(obj.sprite, row1);
 				if (isTank) {
 					column++;
 					column1++;

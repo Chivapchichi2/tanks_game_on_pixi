@@ -67,6 +67,7 @@ export class Loader {
 		this.loader.add('explode_small', './assets/explode_small.png');
 		this.loader.add('scores', './assets/scores.png');
 		this.loader.add('game_over', './assets/game_over.jpg');
+		this.loader.add('you_win', './assets/win.jpg');
 		this.loader.onLoad.add((loader) => {
 			const length = _.keys(loader.resources).length - 2;
 			this.foolBar.width += 800 / length;

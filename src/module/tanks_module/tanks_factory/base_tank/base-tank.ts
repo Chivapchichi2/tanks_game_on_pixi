@@ -201,12 +201,8 @@ export class BaseTank extends Element {
 
 		const animatedSprite = Animation.EXPLODE(this.gameProxy);
 		animatedSprite.position.copyFrom(this.sprite.position);
-		try {
-			this.gameProxy.app.stage.removeChild(this.sprite);
-			this.sprite.destroy();
-		} catch (error) {
-			console.log(error);
-		}
+
+		this.gameProxy.app.stage.removeChild(this.sprite);
 
 		this.gameProxy.tanks = _.filter(this.gameProxy.tanks, (el) => el != this);
 		this.gameProxy.app.stage.addChild(animatedSprite);
@@ -224,6 +220,13 @@ export class BaseTank extends Element {
 				});
 			} else {
 				this.gameProxy.score += 10;
+				if (this.gameProxy.checkWins()) {
+					document.onkeydown = null;
+					this.gameProxy.win = true;
+					gsap.delayedCall(1, () => {
+						this.gameProxy.game.state.nextState(this.gameProxy.mediator.play.bind(this.gameProxy.mediator));
+					});
+				}
 			}
 		};
 		animatedSprite.play();

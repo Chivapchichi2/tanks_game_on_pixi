@@ -22,6 +22,7 @@ export class Timer {
 		this.time = time * 60 * 60;
 		this.app = app;
 		this.gameProxy = new GameProxy(app);
+		this.gameProxy.maxTanksOnMap = 4;
 		this.clock = new PIXI.Text(this.convert(), stylesTimer1);
 		this.clock.anchor.set(0.5);
 		this.clock.position.copyFrom(this.position);
@@ -40,12 +41,18 @@ export class Timer {
 		this.clock.text = this.convert();
 		if (this.time === 3600) {
 			this.clock.style = stylesTimer2;
+			this.gameProxy.maxTanksOnMap = 6;
 		}
 		if (this.time === 1800) {
 			this.clock.style = stylesTimer3;
+			this.gameProxy.maxTanksOnMap = 10;
 		}
 		if (this.time < 1) {
 			this.app.ticker.remove(this.start);
 		}
 	};
+
+	public getScore(): number {
+		return Math.floor(this.time / 60);
+	}
 }
