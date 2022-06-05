@@ -14,7 +14,7 @@ import { BaseTank } from '../base_tank/base-tank';
 import { TanksNames } from '../../misc/tanks-names';
 
 export class EnemyTank extends BaseTank {
-	protected movements: Function[] = [this.moveUp, this.moveDown, this.moveLeft, this.moveRight, this.moveDown];
+	protected movements: Function[] = [this.moveUp, this.moveDown, this.moveLeft, this.moveRight];
 	protected lastMove: Function;
 	protected timer: number = 0;
 	protected delayShot: number = 1500;
@@ -30,7 +30,7 @@ export class EnemyTank extends BaseTank {
 		this.makeShot(this.delayShot);
 		if (this.timer < 1) {
 			this.timer = _.random(30, 180);
-			this.lastMove = this.movements[_.random(4)];
+			this.lastMove = this.movements[_.random(3)];
 		}
 		if (this.sprite) {
 			this.lastMove();

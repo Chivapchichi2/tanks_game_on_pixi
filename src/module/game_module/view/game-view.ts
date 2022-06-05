@@ -15,13 +15,14 @@ import { GameMediator } from '../mediator/game-mediator';
 import { TanksNames } from '../../tanks_module/misc/tanks-names';
 import { MapUtils } from '../../map_module/utils/map-utils';
 import { Global } from '../../global/misc/names';
-import { styles } from '../../global/utils/styles';
+import { styles, stylesLives } from '../../global/utils/styles';
 import { BaseBullet } from '../../bullet_module/bullets_factory/base_bullet/base-bullet';
 import { Timer } from '../components/timer';
 import { Names } from '../misk/names';
 import { Sprite, Application, Graphics, Text } from 'pixi.js';
 
 export class GameView {
+	protected livesValue: Text;
 	protected gameProxy: GameProxy;
 	protected gameMediator: GameMediator;
 	protected app: Application;
@@ -35,14 +36,6 @@ export class GameView {
 		this.app = app;
 		this.gameMediator = mediator;
 		this.gameProxy = new GameProxy(app);
-
-		this.app.ticker.add(() => {
-			_.each(this.gameProxy.bullets, this.move.bind(this));
-			_.each(this.gameProxy.tanks, (tank) => {
-				if (tank.name === TanksNames.NAMES[0]) return;
-				if (tank.appear && tank.sprite) tank.play();
-			});
-		});
 	}
 
 	protected move(bullet: BaseBullet): void {
@@ -134,15 +127,19 @@ export class GameView {
 		this.clean();
 		this.timer = new Timer(2, this.app);
 		this.gameProxy.enemyTanksLeft = 10;
+		this.gameProxy.gameRound++;
 		this.gameProxy.loader.loader.resources.start.sound.play();
+		this.app.ticker.add(this.startTicker);
 		this.drawMap();
 		this.drawTanksLeft();
+		this.drawLives();
 
 		this.getTank(TanksNames.NAMES[0]);
 		for (let i = 0; i < 3; i++) {
 			this.getTank(TanksNames.NAMES[1], i);
 		}
-		gsap.delayedCall(10, this.addNewEnemy.bind(this));
+		gsap.delayedCall(10, this.addNewEnemy.bind(this, this.gameProxy.gameRound));
+		gsap.delayedCall(15, this.getBonus.bind(this, this.gameProxy.gameRound));
 	}
 
 	protected drawMap(): void {
@@ -151,8 +148,8 @@ export class GameView {
 			_.each(line, (element, column: number) => {
 				if (element) {
 					const sprite: Sprite = element.getTexture();
-					const x = 36 * column + 36;
-					const y = 36 * row + 36;
+					const x = Global.TALE_SIZE * column + Global.TALE_SIZE;
+					const y = Global.TALE_SIZE * row + Global.TALE_SIZE;
 					sprite.position.set(x, y);
 					this.app.stage.addChild(sprite);
 				}
@@ -215,7 +212,8 @@ export class GameView {
 		}
 	}
 
-	protected addNewEnemy(): void {
+	protected addNewEnemy(gameRound: number): void {
+		if (this.gameProxy.gameRound !== gameRound) return;
 		if (this.gameProxy.checkTanks()) {
 			const position: number = this.gameProxy.findEmptyPosition();
 			if (position < 3 && this.gameProxy.game.state.name === Names.STATE_MAIN) {
@@ -223,11 +221,12 @@ export class GameView {
 			}
 		}
 		if (this.gameProxy.enemyTanksLeft && this.gameProxy.game.state.name === Names.STATE_MAIN) {
-			gsap.delayedCall(5, this.addNewEnemy.bind(this));
+			gsap.delayedCall(5, this.addNewEnemy.bind(this, this.gameProxy.gameRound));
 		}
 	}
 
-	protected drawTanksLeft(): void {
+	public drawTanksLeft(): void {
+		this.gameProxy.enemyTanksPanel.length = 0;
 		for (let i = 0; i < this.gameProxy.enemyTanksLeft; i++) {
 			const tank: Sprite = new Sprite(this.gameProxy.loader.loader.resources.enemy_white.texture);
 			tank.anchor.set(0.5);
@@ -238,5 +237,41 @@ export class GameView {
 			this.gameProxy.enemyTanksPanel.push(tank);
 			this.app.stage.addChild(tank);
 		}
+	}
+
+	protected drawLives(): void {
+		const livesTitle = new Text('Lives', stylesLives);
+		livesTitle.anchor.set(0.5);
+		livesTitle.position.set(975, 500);
+		this.livesValue = new Text(this.gameProxy.lives.toString(), stylesLives);
+		this.livesValue.anchor.set(0.5);
+		this.livesValue.position.set(975, 530);
+		this.app.stage.addChild(livesTitle, this.livesValue);
+	}
+
+	public changeLivesValue(): void {
+		if (!_.isNil(this.livesValue)) {
+			this.livesValue.text = this.gameProxy.lives.toString();
+		}
+	}
+
+	protected getBonus(gameRound: number): void {
+		if (this.gameProxy.gameRound !== gameRound) return;
+		if (this.gameProxy.game.state.name === Names.STATE_MAIN) {
+			this.gameProxy.bonusFactory.getBonus();
+			gsap.delayedCall(15, this.getBonus.bind(this, this.gameProxy.gameRound));
+		}
+	}
+
+	protected startTicker = (): void => {
+		_.each(this.gameProxy.bullets, this.move.bind(this));
+		_.each(this.gameProxy.tanks, (tank) => {
+			if (tank.name === TanksNames.NAMES[0]) return;
+			if (tank.appear && tank.sprite) tank.play();
+		});
+	};
+
+	public reset(): void {
+		this.app.ticker.remove(this.startTicker);
 	}
 }

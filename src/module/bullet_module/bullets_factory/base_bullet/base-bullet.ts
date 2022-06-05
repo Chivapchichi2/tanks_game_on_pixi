@@ -9,8 +9,6 @@
  * Created by Pavlo Ivchenko on 09.05.2022
  */
 import * as PIXI from 'pixi.js';
-import { GameProxy } from '../../../game_module/proxy/game-proxy';
-import * as _ from 'lodash';
 import { Element } from '../../../global/utils/element';
 
 export class BaseBullet extends Element {
@@ -22,9 +20,6 @@ export class BaseBullet extends Element {
 		this.sprite.anchor.set(0.5);
 		this.sprite.position.copyFrom(position);
 		container.addChild(this.sprite);
-		if (_.isNil(this.gameProxy)) {
-			this.gameProxy = new GameProxy();
-		}
 		this.gameProxy.bullets.push(this);
 		this.gameProxy.loader.loader.resources.shot.sound.play();
 	}

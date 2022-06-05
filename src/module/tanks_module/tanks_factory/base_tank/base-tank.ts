@@ -13,12 +13,12 @@ import * as _ from 'lodash';
 import * as PIXI from 'pixi.js';
 import { gsap } from 'gsap';
 import { TanksNames } from '../../misc/tanks-names';
-import { GameProxy } from '../../../game_module/proxy/game-proxy';
 import { BaseBullet } from '../../../bullet_module/bullets_factory/base_bullet/base-bullet';
 import { BulletsFactory } from '../../../bullet_module/bullets_factory/bullets-factory';
 import { Element } from '../../../global/utils/element';
 import { Global } from '../../../global/misc/names';
 import { Animation } from '../../../global/utils/animation';
+import { MapUtils } from '../../../map_module/utils/map-utils';
 
 export class BaseTank extends Element {
 	public appear: boolean = false;
@@ -59,9 +59,6 @@ export class BaseTank extends Element {
 		this.sprite.position.copyFrom(position);
 		if (this.name === TanksNames.NAMES[1]) {
 			this.sprite.rotation = Math.PI;
-		}
-		if (_.isNil(this.gameProxy)) {
-			this.gameProxy = new GameProxy();
 		}
 
 		const animatedSprite = Animation.APPEAR(this.gameProxy);
@@ -213,11 +210,13 @@ export class BaseTank extends Element {
 			animatedSprite.destroy();
 
 			if (this.name === TanksNames.NAMES[0]) {
-				document.onkeydown = null;
-				this.gameProxy.win = false;
-				gsap.delayedCall(1, () => {
-					this.gameProxy.game.state.nextState(this.gameProxy.mediator.play.bind(this.gameProxy.mediator));
-				});
+				this.lives--;
+				if (this.lives < 1) {
+					this.gameProxy.mediator.endGame();
+				} else {
+					this.drawTank(this.gameProxy.app.stage, MapUtils.PLAYER_START);
+					this.gameProxy.mediator.changeLivesValue();
+				}
 			} else {
 				this.gameProxy.score += 10;
 				if (this.gameProxy.checkWins()) {
@@ -234,4 +233,17 @@ export class BaseTank extends Element {
 	}
 
 	public play(): void {}
+
+	public immortal(): void {
+		this.destroyable = false;
+		gsap.to(this.sprite, {
+			duration: 0.3,
+			alpha: 0,
+			repeat: 17,
+			yoyo: true,
+			onComplete: () => {
+				this.destroyable = true;
+			}
+		});
+	}
 }

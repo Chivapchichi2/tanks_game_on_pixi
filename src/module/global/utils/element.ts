@@ -14,7 +14,7 @@ import { IBounds } from '../misc/interfaces';
 
 export class Element {
 	public sprite: Sprite;
-	protected name: string;
+	public name: string;
 	protected gameProxy: GameProxy;
 	constructor(name: string) {
 		this.name = name;

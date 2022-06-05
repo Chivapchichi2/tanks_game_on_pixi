@@ -80,3 +80,20 @@ export const stylesTimer3 = new TextStyle({
 	wordWrapWidth: 440,
 	lineJoin: 'round'
 });
+export const stylesLives = new TextStyle({
+	fontFamily: 'Arial',
+	fontSize: 24,
+	fontWeight: 'normal',
+	letterSpacing: 5,
+	fill: '#a7fa8c',
+	stroke: '#1f1e1a',
+	strokeThickness: 5,
+	dropShadow: true,
+	dropShadowColor: '#000000',
+	dropShadowBlur: 4,
+	dropShadowAngle: Math.PI / 6,
+	dropShadowDistance: 6,
+	wordWrap: true,
+	wordWrapWidth: 440,
+	lineJoin: 'round'
+});

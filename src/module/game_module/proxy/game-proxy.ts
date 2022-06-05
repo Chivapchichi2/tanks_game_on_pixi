@@ -13,10 +13,12 @@ import { Loader } from '../components/loader';
 import { Game } from '../game';
 import { GameMediator } from '../mediator/game-mediator';
 import { TanksFactory } from '../../tanks_module/tanks_factory/tanks-factory';
-import { Wall } from '../../map_module/components/wall/wall';
 import { MapUtils } from '../../map_module/utils/map-utils';
 import { Utils } from '../../global/utils/utils';
 import { Sprite, Application } from 'pixi.js';
+import { BaseBonus } from '../../bonus_module/bonus_factory/base_bonus/base-bonus';
+import { IEmptyTales } from '../../global/misc/interfaces';
+import { BonusFactory } from '../../bonus_module/bonus_factory/bonus-factory';
 
 export class GameProxy {
 	public bullets: any[] = [];
@@ -24,17 +26,21 @@ export class GameProxy {
 	public maxTanksOnMap: number = 4;
 	public enemyTanksLeft: number = 10;
 	public enemyTanksPanel: Sprite[] = [];
+	public bonuses: BaseBonus[] = [];
 	public map: number[][];
+	public emptyTales: IEmptyTales = { rows: [], columns: [] };
 	public lvl: any[][] = [[]];
 	public bulletSpeed = 5;
 	public loader: Loader;
 	public app: Application;
 	public game: Game;
 	public tanksFactory: TanksFactory;
-	public wall: Wall;
+	public bonusFactory: BonusFactory;
 	public mediator: GameMediator;
 	public win: boolean;
 	public score: number;
+	public lives: number = 1;
+	public gameRound: number = 0;
 	protected static instance: GameProxy;
 	protected static exists: boolean;
 	constructor(app?: Application, game?: Game, mediator?: GameMediator) {
@@ -51,7 +57,9 @@ export class GameProxy {
 		GameProxy.instance = this;
 		GameProxy.exists = true;
 		this.tanksFactory = new TanksFactory();
+		this.bonusFactory = new BonusFactory();
 		this.map = _.clone(MapUtils.LEVEL_1);
+		this.fillEmptyTales();
 		return this;
 	}
 
@@ -84,5 +92,16 @@ export class GameProxy {
 
 	public checkWins(): boolean {
 		return this.tanks.length < 2 && this.enemyTanksLeft < 1;
+	}
+
+	protected fillEmptyTales(): void {
+		_.each(this.map, (lines: number[], row: number) => {
+			_.each(lines, (tile: number, column: number) => {
+				if (!tile) {
+					this.emptyTales.rows.push(row);
+					this.emptyTales.columns.push(column);
+				}
+			});
+		});
 	}
 }

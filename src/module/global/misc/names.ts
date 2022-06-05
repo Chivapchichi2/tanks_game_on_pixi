@@ -15,4 +15,5 @@ export class Global {
 	public static LEFT: string = 'left';
 	public static RIGHT: string = 'right';
 	public static BULLET: string = 'Bullet';
+	public static TALE_SIZE: number = 36;
 }

@@ -19,6 +19,8 @@ import { TanksNames } from '../../tanks_module/misc/tanks-names';
 import { Global } from '../../global/misc/names';
 import { BaseTank } from '../../tanks_module/tanks_factory/base_tank/base-tank';
 import { Utils } from '../../global/utils/utils';
+import { BaseBonus } from '../../bonus_module/bonus_factory/base_bonus/base-bonus';
+import { gsap } from 'gsap';
 
 export class GameMediator {
 	public app: PIXI.Application;
@@ -57,6 +59,7 @@ export class GameMediator {
 		}
 
 		if (state.name === Names.STATE_GAME_OVER) {
+			this.reset();
 			this.view.gameOver();
 		}
 	}
@@ -136,10 +139,18 @@ export class GameMediator {
 			}
 		});
 
+		if (_.includes(TanksNames.NAMES, obj.name)) {
+			_.each(this.proxy.bonuses, (bonus: BaseBonus) => {
+				if (this.fullCollision(obj, bonus, side)) {
+					bonus.collect(obj);
+				}
+			});
+		}
+
 		return firstCollision || secondCollision || tankCollision;
 	}
 
-	protected fullCollision(a: any, b: BaseTank, side: string): boolean {
+	protected fullCollision(a: any, b: BaseTank | BaseBonus, side: string): boolean {
 		const aObj = a.getBounds();
 		const bObj = b.getBounds();
 		switch (side) {
@@ -157,5 +168,25 @@ export class GameMediator {
 				break;
 		}
 		return aObj.minX < bObj.maxX && aObj.maxX > bObj.minX && aObj.minY < bObj.maxY && aObj.maxY > bObj.minY;
+	}
+
+	public endGame(): void {
+		document.onkeydown = null;
+		this.proxy.win = false;
+		gsap.delayedCall(1, () => {
+			this.proxy.game.state.nextState(this.play.bind(this));
+		});
+	}
+
+	public changeLivesValue(): void {
+		this.view.changeLivesValue();
+	}
+
+	public drawTanksLeft(): void {
+		this.view.drawTanksLeft();
+	}
+
+	protected reset(): void {
+		this.view.reset();
 	}
 }

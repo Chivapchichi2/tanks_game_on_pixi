@@ -15,3 +15,8 @@ export interface IBounds {
 	minY: number;
 	maxY: number;
 }
+
+export interface IEmptyTales {
+	rows: number[];
+	columns: number[];
+}

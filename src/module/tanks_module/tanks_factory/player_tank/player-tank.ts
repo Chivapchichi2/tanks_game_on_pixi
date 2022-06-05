@@ -11,6 +11,7 @@
 
 import { BaseTank } from '../base_tank/base-tank';
 import { TanksNames } from '../../misc/tanks-names';
+import { Container, Point } from 'pixi.js';
 
 export class PlayerTank extends BaseTank {
 	constructor(name: string, collisionDetect: Function) {
@@ -44,5 +45,16 @@ export class PlayerTank extends BaseTank {
 				this.destroy();
 			}
 		}
+	}
+
+	public drawTank(container: Container, position: Point): void {
+		this.gameProxy.lives = this.lives;
+		super.drawTank(container, position);
+	}
+
+	public immortal(): void {
+		super.immortal();
+		const eagle = this.gameProxy.lvl[18][12];
+		eagle.immortal();
 	}
 }

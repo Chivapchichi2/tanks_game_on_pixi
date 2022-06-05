@@ -55,6 +55,7 @@ export class Loader {
 		this.loader.add('start', './assets/sounds/start.mp3');
 		this.loader.add('move', './assets/sounds/move.mp3');
 		this.loader.add('eagle_destroy', './assets/sounds/eagle-destroy.mp3');
+		this.loader.add('bonus_appear', './assets/sounds/bonus_appear.wav');
 		this.loader.add('enemy_blue', './assets/tanks/enemy_blue.png');
 		this.loader.add('enemy_red', './assets/tanks/enemy_red.png');
 		this.loader.add('enemy_white', './assets/tanks/enemy_white.png');
