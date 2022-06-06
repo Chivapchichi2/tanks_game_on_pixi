@@ -9,14 +9,14 @@
  * Created by Pavlo Ivchenko on 12.05.2022
  */
 import { Game } from '../game';
-import { Names } from './names';
+import { GameNames } from './game-names';
 
 export class Boot implements State {
 	public game: Game;
 	public name: string;
 	constructor(game: Game) {
 		this.game = game;
-		this.name = Names.STATE_BOOT;
+		this.name = GameNames.STATE_BOOT;
 	}
 
 	public nextState(clb: Function): void {
@@ -30,7 +30,7 @@ export class Preload implements State {
 	public name: string;
 	constructor(game: Game) {
 		this.game = game;
-		this.name = Names.STATE_PRELOAD;
+		this.name = GameNames.STATE_PRELOAD;
 	}
 
 	public nextState(clb: Function): void {
@@ -44,7 +44,7 @@ export class GameTitle implements State {
 	public name: string;
 	constructor(game: Game) {
 		this.game = game;
-		this.name = Names.STATE_GAME_TITLE;
+		this.name = GameNames.STATE_GAME_TITLE;
 	}
 
 	public nextState(clb: Function): void {
@@ -58,7 +58,7 @@ export class Main implements State {
 	public name: string;
 	constructor(game: Game) {
 		this.game = game;
-		this.name = Names.STATE_MAIN;
+		this.name = GameNames.STATE_MAIN;
 	}
 
 	public nextState(clb: Function): void {
@@ -72,7 +72,7 @@ export class GameOver implements State {
 	public name: string;
 	constructor(game: Game) {
 		this.game = game;
-		this.name = Names.STATE_GAME_OVER;
+		this.name = GameNames.STATE_GAME_OVER;
 	}
 
 	public nextState(clb: Function): void {

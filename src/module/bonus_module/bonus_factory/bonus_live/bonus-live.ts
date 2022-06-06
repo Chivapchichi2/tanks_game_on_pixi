@@ -27,6 +27,7 @@ export class BonusLive extends BaseBonus {
 		} else {
 			this.gameProxy.enemyTanksLeft++;
 			this.gameProxy.mediator.drawTanksLeft();
+			this.gameProxy.mediator.addNewEnemy();
 		}
 	}
 }

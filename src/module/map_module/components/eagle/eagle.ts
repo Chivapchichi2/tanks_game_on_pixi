@@ -11,11 +11,12 @@
 import { BaseTexture } from '../base_texture/base-texture';
 import { gsap } from 'gsap';
 import { Animation } from '../../../global/utils/animation';
+import { MapNames } from '../../misk/map-names';
 
 export class Eagle extends BaseTexture {
 	constructor(row: number, column: number) {
 		super(row, column);
-		this.name = 'eagle';
+		this.name = MapNames.EAGLE;
 		this.texture = this.gameProxy.loader.loader.resources.eagle.texture;
 		this.destroyable = true;
 		this.collision = true;
@@ -25,7 +26,6 @@ export class Eagle extends BaseTexture {
 		const animatedSprite = Animation.EXPLODE(this.gameProxy);
 		animatedSprite.position.copyFrom(this.sprite.position);
 		this.gameProxy.app.stage.addChild(animatedSprite);
-		console.log(this.row, this.column);
 		this.gameProxy.lvl[this.row][this.column] = null;
 		this.sprite.destroy();
 		animatedSprite.animationSpeed = 0.2;

@@ -12,13 +12,14 @@
 import { gsap } from 'gsap';
 import { BaseTexture } from '../base_texture/base-texture';
 import { Sprite, Texture } from 'pixi.js';
-import { Global } from '../../../global/misc/names';
+import { Global } from '../../../global/misc/global-names';
+import { MapNames } from '../../misk/map-names';
 
 export class BrickWall extends BaseTexture {
 	protected textures: Texture[] = [];
 	constructor(row: number, column: number) {
 		super(row, column);
-		this.name = 'brickWall';
+		this.name = MapNames.BRICK_WALL;
 		this.texture = this.gameProxy.loader.loader.resources.small_wall_1.texture;
 		const texture2: Texture = this.gameProxy.loader.loader.resources.small_wall_2.texture;
 		const texture3: Texture = this.gameProxy.loader.loader.resources.small_wall_3.texture;
@@ -47,7 +48,6 @@ export class BrickWall extends BaseTexture {
 	}
 
 	public shot(side: string): void {
-		this.gameProxy.score++;
 		let index: number;
 		let length: number = this.sprite.children.length;
 

@@ -9,7 +9,7 @@
  * Created by Pavlo Ivchenko on 15.05.2022
  */
 
-export class Names {
+export class GameNames {
 	public static readonly STATE_BOOT: string = 'Boot';
 	public static readonly STATE_PRELOAD: string = 'Preload';
 	public static readonly STATE_GAME_TITLE: string = 'GameTitle';

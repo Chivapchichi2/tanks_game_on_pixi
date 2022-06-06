@@ -9,24 +9,24 @@
  * Created by Pavlo Ivchenko on 04.06.2022
  */
 import * as _ from 'lodash';
-import { Names } from '../misk/names';
+import { BonusNames } from '../misk/bonus-names';
 import { BonusImmortal } from './bonus_immortal/bonus-immortal';
 import { BonusLive } from './bonus_live/bonus-live';
 import { BonusSpeed } from './bonus_speed/bonus-speed';
 import { BonusSlow } from './bonus_slow/bonus-slow';
 
 export class BonusFactory {
-	protected bonuses: string[] = [Names.IMMORTAL, Names.LIVE, Names.SPEED, Names.SLOW];
+	protected bonuses: string[] = [BonusNames.IMMORTAL, BonusNames.LIVE, BonusNames.SPEED, BonusNames.SLOW];
 	public getBonus(): void {
 		const name: string = this.bonuses[_.random(this.bonuses.length - 1)];
 		switch (name) {
-			case Names.IMMORTAL:
+			case BonusNames.IMMORTAL:
 				return new BonusImmortal(name).getBonus();
-			case Names.LIVE:
+			case BonusNames.LIVE:
 				return new BonusLive(name).getBonus();
-			case Names.SPEED:
+			case BonusNames.SPEED:
 				return new BonusSpeed(name).getBonus();
-			case Names.SLOW:
+			case BonusNames.SLOW:
 				return new BonusSlow(name).getBonus();
 		}
 	}

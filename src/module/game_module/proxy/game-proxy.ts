@@ -23,8 +23,8 @@ import { BonusFactory } from '../../bonus_module/bonus_factory/bonus-factory';
 export class GameProxy {
 	public bullets: any[] = [];
 	public tanks: any[] = [];
-	public maxTanksOnMap: number = 4;
-	public enemyTanksLeft: number = 10;
+	public maxTanksOnMap: number;
+	public enemyTanksLeft: number;
 	public enemyTanksPanel: Sprite[] = [];
 	public bonuses: BaseBonus[] = [];
 	public map: number[][];
@@ -39,8 +39,9 @@ export class GameProxy {
 	public mediator: GameMediator;
 	public win: boolean;
 	public score: number;
-	public lives: number = 1;
-	public gameRound: number = 0;
+	public lives: number;
+	public gameRound: number;
+	public gameLevels = [MapUtils.LEVEL_1, MapUtils.LEVEL_2, MapUtils.LEVEL_3];
 	protected static instance: GameProxy;
 	protected static exists: boolean;
 	constructor(app?: Application, game?: Game, mediator?: GameMediator) {
@@ -58,8 +59,7 @@ export class GameProxy {
 		GameProxy.exists = true;
 		this.tanksFactory = new TanksFactory();
 		this.bonusFactory = new BonusFactory();
-		this.map = _.clone(MapUtils.LEVEL_1);
-		this.fillEmptyTales();
+		this.newGame();
 		return this;
 	}
 
@@ -103,5 +103,23 @@ export class GameProxy {
 				}
 			});
 		});
+	}
+
+	public newLvl(): void {
+		this.map = this.gameLevels.shift();
+		this.bullets = [];
+		this.tanks = [];
+		this.maxTanksOnMap = 4;
+		this.enemyTanksLeft = 10;
+		this.enemyTanksPanel = [];
+		this.bonuses = [];
+		this.fillEmptyTales();
+	}
+
+	public newGame(): void {
+		this.gameLevels = [MapUtils.LEVEL_1, MapUtils.LEVEL_2, MapUtils.LEVEL_3];
+		this.lives = 1;
+		this.gameRound = 0;
+		this.newLvl();
 	}
 }

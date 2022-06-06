@@ -14,19 +14,21 @@ import { GameView } from '../view/game-view';
 import * as PIXI from 'pixi.js';
 import { State } from '../misk/states';
 import { Game } from '../game';
-import { Names } from '../misk/names';
+import { GameNames } from '../misk/game-names';
 import { TanksNames } from '../../tanks_module/misc/tanks-names';
-import { Global } from '../../global/misc/names';
+import { Global } from '../../global/misc/global-names';
 import { BaseTank } from '../../tanks_module/tanks_factory/base_tank/base-tank';
 import { Utils } from '../../global/utils/utils';
 import { BaseBonus } from '../../bonus_module/bonus_factory/base_bonus/base-bonus';
 import { gsap } from 'gsap';
+import { MapNames } from '../../map_module/misk/map-names';
 
 export class GameMediator {
 	public app: PIXI.Application;
 	protected view: GameView;
 	protected proxy: GameProxy;
 	protected game: Game;
+	protected isLvlEnded: boolean = false;
 	constructor(game: Game, width: number = 1024, height: number = 768) {
 		this.app = new PIXI.Application({
 			width,
@@ -35,37 +37,38 @@ export class GameMediator {
 			antialias: true
 		});
 		this.game = game;
+		this.app.stage.sortableChildren = true;
 	}
 
 	public play(): void {
 		const state: State = this.game.state;
-		if (state.name === Names.STATE_BOOT) {
+		if (state.name === GameNames.STATE_BOOT) {
 			document.getElementById('app').appendChild(this.app.view);
 			state.nextState(this.play.bind(this));
 		}
 
-		if (state.name === Names.STATE_PRELOAD) {
+		if (state.name === GameNames.STATE_PRELOAD) {
 			this.proxy = new GameProxy(this.app, this.game, this);
 			this.view = new GameView(this.app, this);
 		}
 
-		if (state.name === Names.STATE_GAME_TITLE) {
+		if (state.name === GameNames.STATE_GAME_TITLE) {
 			this.view.drawTitle();
 		}
 
-		if (state.name === Names.STATE_MAIN) {
+		if (state.name === GameNames.STATE_MAIN) {
 			this.proxy.score = 0;
 			this.view.mainGame();
 		}
 
-		if (state.name === Names.STATE_GAME_OVER) {
+		if (state.name === GameNames.STATE_GAME_OVER) {
 			this.reset();
 			this.view.gameOver();
 		}
 	}
 
 	protected collisionCheck(a: any, b: any, side: string): boolean {
-		if (_.isNil(b)) return false;
+		if (_.isNil(b) || !b.collision) return false;
 		const aObj = a.getBounds();
 		const bObj = b.getBounds();
 		switch (side) {
@@ -120,6 +123,13 @@ export class GameMediator {
 
 		if (firstCollision && !isTank) {
 			this.proxy.lvl[row][column].shot(side);
+			if (
+				obj.name === TanksNames.NAMES[0] + Global.BULLET &&
+				this.proxy.lvl[row][column].name === MapNames.BRICK_WALL
+			) {
+				this.proxy.score++;
+				this.changeScoreValue();
+			}
 		}
 
 		const secondCollision = this.collisionCheck(obj, this.proxy.lvl[row1][column1], side);
@@ -139,12 +149,19 @@ export class GameMediator {
 			}
 		});
 
-		if (_.includes(TanksNames.NAMES, obj.name)) {
+		if (isTank) {
 			_.each(this.proxy.bonuses, (bonus: BaseBonus) => {
 				if (this.fullCollision(obj, bonus, side)) {
 					bonus.collect(obj);
+					if (obj.name === TanksNames.NAMES[0]) {
+						this.proxy.score += 5;
+						this.changeScoreValue();
+					}
 				}
 			});
+			if (this.waterCheck(obj)) {
+				obj.drown();
+			}
 		}
 
 		return firstCollision || secondCollision || tankCollision;
@@ -170,6 +187,12 @@ export class GameMediator {
 		return aObj.minX < bObj.maxX && aObj.maxX > bObj.minX && aObj.minY < bObj.maxY && aObj.maxY > bObj.minY;
 	}
 
+	protected waterCheck(obj: BaseTank): boolean {
+		const [row, column] = Utils.getTitlePosition(obj.sprite);
+		const tile = this.proxy.lvl[row][column];
+		return tile && tile.name === MapNames.WATER;
+	}
+
 	public endGame(): void {
 		document.onkeydown = null;
 		this.proxy.win = false;
@@ -182,8 +205,40 @@ export class GameMediator {
 		this.view.changeLivesValue();
 	}
 
+	public changeScoreValue(): void {
+		this.view.changeScoreValue();
+		this.proxy.loader.loader.resources.score_collect.sound.play();
+	}
+
 	public drawTanksLeft(): void {
 		this.view.drawTanksLeft();
+	}
+
+	public levelEnd(): void {
+		if (this.isLvlEnded) return;
+		this.isLvlEnded = true;
+		if (this.proxy.gameLevels.length < 1) {
+			document.onkeydown = null;
+			this.proxy.win = true;
+			gsap.delayedCall(1, () => {
+				this.proxy.game.state.nextState(this.play.bind(this));
+				this.isLvlEnded = false;
+			});
+		} else {
+			this.proxy.loader.loader.resources.lvl_win.sound.play();
+			this.proxy.score += this.view.timer.getScore();
+			this.changeScoreValue();
+			gsap.delayedCall(3, () => {
+				this.reset();
+				this.proxy.newLvl();
+				this.view.mainGame();
+				this.isLvlEnded = false;
+			});
+		}
+	}
+
+	public addNewEnemy(): void {
+		this.view.addNewEnemy(this.proxy.gameRound);
 	}
 
 	protected reset(): void {

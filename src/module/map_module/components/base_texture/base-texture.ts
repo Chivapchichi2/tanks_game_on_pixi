@@ -10,7 +10,7 @@
  */
 import { Texture, Sprite } from 'pixi.js';
 import { Element } from '../../../global/utils/element';
-import { Global } from '../../../global/misc/names';
+import { Global } from '../../../global/misc/global-names';
 import { Animation } from '../../../global/utils/animation';
 
 export class BaseTexture extends Element {

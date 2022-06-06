@@ -9,7 +9,7 @@
  * Created by Pavlo Ivchenko on 04.06.2022
  */
 import { Sprite } from 'pixi.js';
-import { Global } from '../misc/names';
+import { Global } from '../misc/global-names';
 
 export class Utils {
 	public static getTitlePosition(sprite: Sprite): number[] {

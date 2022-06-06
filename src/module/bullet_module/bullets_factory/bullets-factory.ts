@@ -11,7 +11,7 @@
 
 import { TanksNames } from '../../tanks_module/misc/tanks-names';
 import { PlayerBullet } from './player_bullet/player-bullet';
-import { Global } from '../../global/misc/names';
+import { Global } from '../../global/misc/global-names';
 import { EnemyBullet } from './enemy_bullet/enemy-bullet';
 
 export class BulletsFactory {

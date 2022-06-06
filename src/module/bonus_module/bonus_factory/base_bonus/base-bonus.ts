@@ -12,7 +12,7 @@ import * as _ from 'lodash';
 import { Element } from '../../../global/utils/element';
 import { BaseTank } from '../../../tanks_module/tanks_factory/base_tank/base-tank';
 import { Point, Sprite, Texture } from 'pixi.js';
-import { Global } from '../../../global/misc/names';
+import { Global } from '../../../global/misc/global-names';
 
 export class BaseBonus extends Element {
 	protected texture: Texture;
@@ -31,7 +31,6 @@ export class BaseBonus extends Element {
 	public collect(tank: BaseTank): void {
 		this.gameProxy.loader.loader.resources.bonus.sound.play();
 		this.gameProxy.bonuses = _.filter(this.gameProxy.bonuses, (bonus: BaseBonus) => bonus !== this);
-		this.gameProxy.score += 5;
 		this.sprite.destroy();
 	}
 

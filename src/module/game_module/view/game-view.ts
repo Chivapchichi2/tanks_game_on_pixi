@@ -14,23 +14,29 @@ import { GameProxy } from '../proxy/game-proxy';
 import { GameMediator } from '../mediator/game-mediator';
 import { TanksNames } from '../../tanks_module/misc/tanks-names';
 import { MapUtils } from '../../map_module/utils/map-utils';
-import { Global } from '../../global/misc/names';
+import { Global } from '../../global/misc/global-names';
 import { styles, stylesLives } from '../../global/utils/styles';
 import { BaseBullet } from '../../bullet_module/bullets_factory/base_bullet/base-bullet';
 import { Timer } from '../components/timer';
-import { Names } from '../misk/names';
+import { GameNames } from '../misk/game-names';
 import { Sprite, Application, Graphics, Text } from 'pixi.js';
 
 export class GameView {
+	public timer: Timer;
+	protected lives: string = 'Lives';
+	protected score: string = 'Score';
 	protected livesValue: Text;
+	protected scoreValue: Text;
 	protected gameProxy: GameProxy;
 	protected gameMediator: GameMediator;
 	protected app: Application;
-	protected timer: Timer;
 	protected tanksPanelStartX: number = 960;
 	protected tanksPanelStartY: number = 100;
 	protected tanksPanelScale: number = 0.7;
 	protected tanksPanelOffset: number = 30;
+	protected firstBonusDelay: number = 15;
+	protected firstNewEnemyDelay: number = 10;
+	protected firstEnemyQuantity: number = 3;
 
 	constructor(app: Application, mediator: GameMediator) {
 		this.app = app;
@@ -125,21 +131,21 @@ export class GameView {
 
 	public mainGame(): void {
 		this.clean();
-		this.timer = new Timer(2, this.app);
-		this.gameProxy.enemyTanksLeft = 10;
 		this.gameProxy.gameRound++;
+		this.timer = new Timer(2, this.app);
 		this.gameProxy.loader.loader.resources.start.sound.play();
 		this.app.ticker.add(this.startTicker);
 		this.drawMap();
 		this.drawTanksLeft();
 		this.drawLives();
+		this.drawScore();
 
 		this.getTank(TanksNames.NAMES[0]);
-		for (let i = 0; i < 3; i++) {
+		for (let i = 0; i < this.firstEnemyQuantity; i++) {
 			this.getTank(TanksNames.NAMES[1], i);
 		}
-		gsap.delayedCall(10, this.addNewEnemy.bind(this, this.gameProxy.gameRound));
-		gsap.delayedCall(15, this.getBonus.bind(this, this.gameProxy.gameRound));
+		gsap.delayedCall(this.firstNewEnemyDelay, this.addNewEnemy.bind(this, this.gameProxy.gameRound));
+		gsap.delayedCall(this.firstBonusDelay, this.getBonus.bind(this, this.gameProxy.gameRound));
 	}
 
 	protected drawMap(): void {
@@ -159,6 +165,7 @@ export class GameView {
 
 	public gameOver(): void {
 		this.clean();
+		this.gameProxy.gameRound++;
 		const score = new Text(this.gameProxy.score.toString(), styles);
 		score.anchor.set(0.5);
 		score.position.set(1024 / 2, 768 / 1.25);
@@ -171,6 +178,7 @@ export class GameView {
 		this.app.stage.interactive = true;
 		this.app.stage.buttonMode = true;
 		this.app.stage.on('pointerdown', () => {
+			this.gameProxy.newGame();
 			this.gameProxy.game.state.nextState(this.gameMediator.play.bind(this.gameMediator));
 			this.app.stage.removeAllListeners();
 			this.app.stage.interactive = false;
@@ -212,15 +220,15 @@ export class GameView {
 		}
 	}
 
-	protected addNewEnemy(gameRound: number): void {
+	public addNewEnemy(gameRound: number): void {
 		if (this.gameProxy.gameRound !== gameRound) return;
 		if (this.gameProxy.checkTanks()) {
 			const position: number = this.gameProxy.findEmptyPosition();
-			if (position < 3 && this.gameProxy.game.state.name === Names.STATE_MAIN) {
+			if (position < 3 && this.gameProxy.game.state.name === GameNames.STATE_MAIN) {
 				this.getTank(TanksNames.NAMES[1], position);
 			}
 		}
-		if (this.gameProxy.enemyTanksLeft && this.gameProxy.game.state.name === Names.STATE_MAIN) {
+		if (this.gameProxy.enemyTanksLeft && this.gameProxy.game.state.name === GameNames.STATE_MAIN) {
 			gsap.delayedCall(5, this.addNewEnemy.bind(this, this.gameProxy.gameRound));
 		}
 	}
@@ -240,7 +248,7 @@ export class GameView {
 	}
 
 	protected drawLives(): void {
-		const livesTitle = new Text('Lives', stylesLives);
+		const livesTitle = new Text(this.lives, stylesLives);
 		livesTitle.anchor.set(0.5);
 		livesTitle.position.set(975, 500);
 		this.livesValue = new Text(this.gameProxy.lives.toString(), stylesLives);
@@ -255,9 +263,25 @@ export class GameView {
 		}
 	}
 
+	protected drawScore(): void {
+		const scoreTitle = new Text(this.score, stylesLives);
+		scoreTitle.anchor.set(0.5);
+		scoreTitle.position.set(975, 300);
+		this.scoreValue = new Text(this.gameProxy.score.toString(), stylesLives);
+		this.scoreValue.anchor.set(0.5);
+		this.scoreValue.position.set(975, 330);
+		this.app.stage.addChild(scoreTitle, this.scoreValue);
+	}
+
+	public changeScoreValue(): void {
+		if (!_.isNil(this.scoreValue)) {
+			this.scoreValue.text = this.gameProxy.score.toString();
+		}
+	}
+
 	protected getBonus(gameRound: number): void {
 		if (this.gameProxy.gameRound !== gameRound) return;
-		if (this.gameProxy.game.state.name === Names.STATE_MAIN) {
+		if (this.gameProxy.game.state.name === GameNames.STATE_MAIN) {
 			this.gameProxy.bonusFactory.getBonus();
 			gsap.delayedCall(15, this.getBonus.bind(this, this.gameProxy.gameRound));
 		}

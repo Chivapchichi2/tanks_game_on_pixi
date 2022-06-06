@@ -9,7 +9,7 @@
  * Created by Pavlo Ivchenko on 04.06.2022
  */
 
-export class Names {
+export class BonusNames {
 	public static IMMORTAL: string = 'bonus_immortal';
 	public static LIVE: string = 'bonus_live';
 	public static SLOW: string = 'bonus_slow';
