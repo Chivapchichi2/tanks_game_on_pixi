@@ -12,6 +12,8 @@
 import * as _ from 'lodash';
 import { BaseTank } from '../base_tank/base-tank';
 import { TanksNames } from '../../misc/tanks-names';
+import { Global } from '../../../global/misc/global-names';
+import { Container, Point } from 'pixi.js';
 
 export class EnemyTank extends BaseTank {
 	protected movements: Function[] = [this.moveUp, this.moveDown, this.moveLeft, this.moveRight];
@@ -42,5 +44,10 @@ export class EnemyTank extends BaseTank {
 		super.destroy();
 		this.lastMove = () => {};
 		this.timer = 0;
+	}
+
+	public drawTank(container: Container, position: Point): void {
+		super.drawTank(container, position);
+		this.currentSide = Global.DOWN;
 	}
 }

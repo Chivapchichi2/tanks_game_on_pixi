@@ -63,6 +63,13 @@ export class GameProxy {
 		return this;
 	}
 
+	public static getInstance(): GameProxy {
+		if (!GameProxy.instance) {
+			GameProxy.instance = new GameProxy();
+		}
+		return GameProxy.instance;
+	}
+
 	public makeLvl(): void {
 		this.lvl = _.map(this.map, (line, row) =>
 			_.map(line, (tiles, column) => {

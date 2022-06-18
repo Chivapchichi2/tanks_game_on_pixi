@@ -18,7 +18,7 @@ export class Element {
 	protected gameProxy: GameProxy;
 	constructor(name: string) {
 		this.name = name;
-		this.gameProxy = new GameProxy();
+		this.gameProxy = GameProxy.getInstance();
 	}
 
 	public getBounds(): IBounds {

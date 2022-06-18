@@ -14,7 +14,7 @@ import { Game } from './module/game_module/game';
 
 console.log(sound);
 /**
- * Game version 1.0
+ * Game version 1.1
  */
 const game = new Game();
 game.start();

@@ -12,6 +12,7 @@
 import { BaseTank } from '../base_tank/base-tank';
 import { TanksNames } from '../../misc/tanks-names';
 import { Container, Point } from 'pixi.js';
+import { Global } from '../../../global/misc/global-names';
 
 export class PlayerTank extends BaseTank {
 	constructor(name: string, collisionDetect: Function) {
@@ -49,6 +50,7 @@ export class PlayerTank extends BaseTank {
 
 	public drawTank(container: Container, position: Point): void {
 		this.gameProxy.lives = this.lives;
+		this.currentSide = Global.UP;
 		super.drawTank(container, position);
 	}
 

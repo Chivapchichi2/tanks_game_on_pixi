@@ -30,6 +30,7 @@ export class BaseTank extends Element {
 	protected time: number = 0;
 	protected destroyable: boolean = false;
 	protected canMove: boolean = true;
+	protected currentSide: string;
 
 	constructor(name: string, collisionDetect: Function) {
 		super(name);
@@ -92,57 +93,65 @@ export class BaseTank extends Element {
 
 	protected moveUp(): void {
 		if (this.sprite && this.canMove) {
-			gsap.to(this.sprite, {
-				rotation: 0,
-				duration: 0.2,
-				onComplete: () => {
-					if (!this.collisionDetect(this, Global.UP)) {
-						this.sprite.y -= this.speed;
-					}
+			if (this.currentSide !== Global.UP) {
+				this.currentSide = Global.UP;
+				gsap.to(this.sprite, {
+					rotation: 0,
+					duration: 0.2
+				});
+			} else {
+				if (!this.collisionDetect(this, Global.UP)) {
+					this.sprite.y -= this.speed;
 				}
-			});
+			}
 		}
 	}
 
 	protected moveDown(): void {
 		if (this.sprite && this.canMove) {
-			gsap.to(this.sprite, {
-				rotation: Math.PI,
-				duration: 0.2,
-				onComplete: () => {
-					if (!this.collisionDetect(this, Global.DOWN)) {
-						this.sprite.y += this.speed;
-					}
+			if (this.currentSide !== Global.DOWN) {
+				this.currentSide = Global.DOWN;
+				gsap.to(this.sprite, {
+					rotation: Math.PI,
+					duration: 0.2
+				});
+			} else {
+				if (!this.collisionDetect(this, Global.DOWN)) {
+					this.sprite.y += this.speed;
 				}
-			});
+			}
 		}
 	}
 
 	protected moveLeft(): void {
 		if (this.sprite && this.canMove) {
-			gsap.to(this.sprite, {
-				rotation: (3 * Math.PI) / 2,
-				duration: 0.2,
-				onComplete: () => {
-					if (!this.collisionDetect(this, Global.LEFT)) {
-						this.sprite.x -= this.speed;
-					}
+			if (this.currentSide !== Global.LEFT) {
+				this.currentSide = Global.LEFT;
+				gsap.to(this.sprite, {
+					rotation: (3 * Math.PI) / 2,
+					duration: 0.2
+				});
+			} else {
+				if (!this.collisionDetect(this, Global.LEFT)) {
+					this.sprite.x -= this.speed;
 				}
-			});
+			}
 		}
 	}
 
 	protected moveRight(): void {
 		if (this.sprite && this.canMove) {
-			gsap.to(this.sprite, {
-				rotation: Math.PI / 2,
-				duration: 0.2,
-				onComplete: () => {
-					if (!this.collisionDetect(this, Global.RIGHT)) {
-						this.sprite.x += this.speed;
-					}
+			if (this.currentSide !== Global.RIGHT) {
+				this.currentSide = Global.RIGHT;
+				gsap.to(this.sprite, {
+					rotation: Math.PI / 2,
+					duration: 0.2
+				});
+			} else {
+				if (!this.collisionDetect(this, Global.RIGHT)) {
+					this.sprite.x += this.speed;
 				}
-			});
+			}
 		}
 	}
 
@@ -236,6 +245,7 @@ export class BaseTank extends Element {
 	protected endGameDecision(): void {
 		if (this.name === TanksNames.NAMES[0]) {
 			this.lives--;
+			this.gameProxy.lives--;
 			this.gameProxy.mediator.changeLivesValue();
 			if (this.lives < 1) {
 				this.gameProxy.mediator.endGame();

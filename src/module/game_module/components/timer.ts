@@ -21,7 +21,7 @@ export class Timer {
 	constructor(time: number, app: PIXI.Application) {
 		this.time = time * 60 * 60;
 		this.app = app;
-		this.gameProxy = new GameProxy(app);
+		this.gameProxy = GameProxy.getInstance();
 		this.gameProxy.maxTanksOnMap = 4;
 		this.clock = new PIXI.Text(this.convert(), stylesTimer1);
 		this.clock.anchor.set(0.5);

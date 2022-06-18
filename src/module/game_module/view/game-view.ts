@@ -41,7 +41,7 @@ export class GameView {
 	constructor(app: Application, mediator: GameMediator) {
 		this.app = app;
 		this.gameMediator = mediator;
-		this.gameProxy = new GameProxy(app);
+		this.gameProxy = GameProxy.getInstance();
 	}
 
 	protected move(bullet: BaseBullet): void {
